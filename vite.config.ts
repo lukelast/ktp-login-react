@@ -13,12 +13,13 @@ export default defineConfig({
       fileName: (format) => (format === "es" ? "index.js" : "index.cjs"),
     },
     rollupOptions: {
-      // Don’t bundle peer deps like react/react-dom
-      external: ["react", "react-dom"],
+      // Don't bundle peer deps like react/react-dom
+      external: ["react", "react-dom", "react/jsx-runtime"],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react/jsx-runtime": "jsxRuntime",
         },
       },
     },
