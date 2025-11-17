@@ -14,12 +14,19 @@ export default defineConfig({
     },
     rollupOptions: {
       // Don't bundle peer deps like react/react-dom
-      external: ["react", "react-dom", "react/jsx-runtime"],
+      external: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        "react-router-dom",
+        /^firebase(\/.*)?$/,
+      ],
       output: {
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
           "react/jsx-runtime": "jsxRuntime",
+          "react-router-dom": "ReactRouterDOM",
         },
       },
     },

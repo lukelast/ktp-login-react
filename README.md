@@ -1,43 +1,386 @@
 # ktp-login-react
 
-Small, typed React primitives that power the KTP login experience. The package ships as a dual-module library (ESM + CJS) with generated declaration files so consumers get great DX regardless of their bundler.
+A comprehensive React authentication library powered by Firebase. Provides pre-built components and hooks for implementing login flows with multiple OAuth providers and email/password authentication. Ships as a dual-module library (ESM + CJS) with TypeScript declarations.
+
+## Features
+
+- Firebase Authentication integration
+- Multiple OAuth providers (Google, GitHub, Microsoft, Facebook)
+- Email/password authentication with signup and password reset
+- Pre-built, styled UI components (Tailwind CSS)
+- Protected route component for securing pages
+- Backend session synchronization
+- Fully typed with TypeScript
 
 ## Installation
 
 ```bash
 npm install ktp-login-react
-# or
-yarn add ktp-login-react
 ```
+
+### Peer Dependencies
+
+This library requires the following peer dependencies:
+
+```bash
+npm install react react-dom firebase react-router-dom
+```
+
+If using the pre-built UI components, you'll also need Tailwind CSS configured in your project.
+
+## Quick Start
+
+### 1. Initialize the Library
+
+Before using any components, initialize the library with your configuration:
 
 ```tsx
-import { MyButton } from "ktp-login-react";
+// src/main.tsx or src/index.tsx
+import { initializeAuthLibrary } from "ktp-login-react";
 
-export const Example = () => (
-  <MyButton variant="secondary">Continue</MyButton>
-);
+initializeAuthLibrary({
+  firebase: {
+    apiKey: "your-api-key",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+  },
+  auth: {
+    enabledProviders: [
+      "google.com",
+      "github.com",
+      "microsoft.com",
+      "facebook.com",
+      "password", // Email/password auth
+    ],
+    endpoints: {
+      login: "/api/auth/login",
+      logout: "/api/auth/logout",
+    },
+    routes: {
+      login: "/login",
+      signup: "/signup",
+      resetPassword: "/reset-password",
+      afterLogin: "/dashboard",
+      afterSignup: "/",
+    },
+    password: {
+      minLength: 8,
+    },
+  },
+});
 ```
+
+### 2. Wrap Your App with AuthProvider
+
+```tsx
+// src/App.tsx
+import { AuthProvider } from "ktp-login-react";
+import { BrowserRouter } from "react-router-dom";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <YourRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+```
+
+### 3. Set Up Routes
+
+```tsx
+// src/routes.tsx
+import { Routes, Route } from "react-router-dom";
+import {
+  LoginPage,
+  SignupPage,
+  PasswordResetPage,
+  ProtectedRoute,
+} from "ktp-login-react";
+
+function YourRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/reset-password" element={<PasswordResetPage />} />
+
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+      </Route>
+    </Routes>
+  );
+}
+```
+
+### 4. Use the Auth Hook
+
+```tsx
+import { useAuth } from "ktp-login-react";
+
+function Dashboard() {
+  const { user, firebaseUser, isLoading, logout } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome, {user?.nameFirst}!</h1>
+      <p>Email: {user?.email}</p>
+      <button onClick={logout}>Log Out</button>
+    </div>
+  );
+}
+```
+
+## API Reference
+
+### Configuration
+
+```typescript
+interface AuthLibraryConfig {
+  firebase: FirebaseOptions; // Firebase configuration object
+
+  auth: {
+    enabledProviders: string[]; // Array of provider IDs to enable
+    endpoints: {
+      login: string; // Backend endpoint to sync Firebase auth
+      logout: string; // Backend endpoint for logout
+    };
+    routes: {
+      login: string; // Login page route
+      signup: string; // Signup page route
+      resetPassword: string; // Password reset page route
+      afterLogin: string; // Redirect after successful login
+      afterSignup: string; // Redirect after successful signup
+    };
+    password?: {
+      minLength?: number; // Minimum password length (default: 6)
+    };
+  };
+}
+```
+
+### Provider IDs
+
+Use these strings in the `enabledProviders` array:
+
+- `"google.com"` - Google OAuth
+- `"github.com"` - GitHub OAuth
+- `"microsoft.com"` - Microsoft OAuth
+- `"facebook.com"` - Facebook OAuth
+- `"password"` - Email/password authentication
+
+### Exported Components
+
+#### `AuthProvider`
+
+Context provider that manages authentication state. Must wrap your app.
+
+```tsx
+<AuthProvider>{children}</AuthProvider>
+```
+
+#### `LoginPage`
+
+Pre-built login page with OAuth buttons and email/password form.
+
+```tsx
+<LoginPage redirectTo="/custom-redirect" />
+```
+
+Props:
+
+- `redirectTo?: string` - Override the default redirect after login
+
+#### `SignupPage`
+
+Pre-built signup page with email/password registration.
+
+```tsx
+<SignupPage />
+```
+
+#### `PasswordResetPage`
+
+Pre-built password reset request page.
+
+```tsx
+<PasswordResetPage />
+```
+
+#### `ProtectedRoute`
+
+Route guard that requires authentication. Renders `LoginPage` if not authenticated.
+
+```tsx
+// As a layout route
+<Route element={<ProtectedRoute />}>
+  <Route path="/dashboard" element={<Dashboard />} />
+</Route>
+
+// With children
+<ProtectedRoute>
+  <Dashboard />
+</ProtectedRoute>
+```
+
+### Hooks
+
+#### `useAuth()`
+
+Returns the authentication context.
+
+```typescript
+const { user, firebaseUser, isLoading, logout } = useAuth();
+```
+
+Returns:
+
+- `user: User | null` - Backend user object
+- `firebaseUser: FirebaseUser | null` - Firebase user object
+- `isLoading: boolean` - Auth state loading indicator
+- `logout: () => Promise<void>` - Logout function
+
+### Types
+
+#### `User`
+
+```typescript
+interface User {
+  userId: string;
+  nameFull: string;
+  email: string;
+  nameFirst: string;
+  subscription?: string;
+}
+```
+
+### Firebase Utilities
+
+Direct access to Firebase auth functions:
+
+```typescript
+import {
+  signInWithGoogle,
+  signInWithGitHub,
+  signInWithMicrosoft,
+  signInWithFacebook,
+  signInWithEmail,
+  signUpWithEmail,
+  resetPassword,
+  signOutUser,
+  subscribeToAuthState,
+  MICROSOFT_PROVIDER_ID,
+} from "ktp-login-react";
+```
+
+## Backend Integration
+
+The library expects your backend to have two endpoints:
+
+### POST `/auth/login`
+
+Called after Firebase authentication to sync with your backend.
+
+Request:
+
+```json
+{
+  "idToken": "firebase-id-token"
+}
+```
+
+Response:
+
+```json
+{
+  "user": {
+    "userId": "123",
+    "nameFull": "John Doe",
+    "email": "john@example.com",
+    "nameFirst": "John",
+    "subscription": "pro"
+  }
+}
+```
+
+### POST `/auth/logout`
+
+Called when user logs out.
+
+## Customization
+
+### Custom Login Flow
+
+If you need more control, use the Firebase utilities directly:
+
+```tsx
+import { signInWithGoogle, useAuth } from "ktp-login-react";
+
+function CustomLogin() {
+  const { user } = useAuth();
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      // AuthProvider automatically syncs with backend
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
+  return <button onClick={handleGoogleLogin}>Custom Google Login</button>;
+}
+```
+
+### Styling
+
+The pre-built components use Tailwind CSS classes. To customize:
+
+1. Override Tailwind classes in your config
+2. Or create your own components using the hooks and utilities
 
 ## Scripts
 
-| Command              | Description                                                                 |
-| -------------------- | --------------------------------------------------------------------------- |
-| `npm run dev`        | Starts Vite in library mode so you can develop components locally.          |
-| `npm run lint`       | Runs ESLint over all `ts/tsx` sources.                                      |
-| `npm run test`       | Executes the Vitest test suite (placeholder until tests exist).             |
-| `npm run build`      | Produces `dist/index.js`, `dist/index.cjs`, and `dist/types/**/*.d.ts`.      |
-| `npm run preview`    | Serves the most recent build with Vite’s preview server.                    |
+| Command           | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| `npm run dev`     | Starts Vite in library mode for local development                  |
+| `npm run lint`    | Runs ESLint over all `ts/tsx` sources                              |
+| `npm run test`    | Executes the Vitest test suite                                     |
+| `npm run build`   | Produces `dist/index.js`, `dist/index.cjs`, and type declarations  |
+| `npm run preview` | Serves the most recent build with Vite's preview server            |
 
-The `prepublishOnly` hook automatically runs `npm run build` so `npm publish` or `npm pack` always includes up-to-date artifacts.
+## Project Structure
 
-## Project structure
-
-- `src/lib` – source for the exported components. Add new components here and re-export them from `src/index.ts`.
-- `tsconfig.build.json` – dedicated TypeScript config used to emit declaration files into `dist/types`.
-- `vite.config.ts` – library build configuration that outputs both ESM and CJS bundles and marks React as a peer dependency/externals.
+```
+src/
+├── index.ts                    # Main entry point
+└── lib/
+    ├── config/                 # Configuration system
+    │   ├── index.ts            # initializeAuthLibrary()
+    │   └── types.ts            # AuthLibraryConfig interface
+    ├── auth/                   # Core auth functionality
+    │   ├── types.ts            # User, AuthContextType
+    │   ├── useAuth.ts          # useAuth hook
+    │   ├── AuthProvider.tsx    # Context provider
+    │   └── ProtectedRoute.tsx  # Route guard
+    ├── firebase/               # Firebase integration
+    │   └── firebase.ts         # Auth functions
+    └── components/             # Pre-built UI
+        ├── LoginPage.tsx
+        ├── SignupPage.tsx
+        └── PasswordResetPage.tsx
+```
 
 ## Releasing
 
-1. Update the version in `package.json`.
-2. `npm run lint && npm run test` to ensure quality gates pass.
-3. `npm publish` – this triggers a clean build and uploads the `dist` folder defined in the `files` whitelist.
+1. Update the version in `package.json`
+2. Run `npm run lint && npm run test` to ensure quality gates pass
+3. Run `npm publish` - this triggers a clean build and uploads the `dist` folder
