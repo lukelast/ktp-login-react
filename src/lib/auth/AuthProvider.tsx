@@ -65,6 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsLoading(true);
 
     const unsubscribe = subscribeToAuthState(async (firebaseUser) => {
+      setIsLoading(true);
       setFirebaseUser(firebaseUser);
       await syncWithBackend(firebaseUser);
       setIsLoading(false);

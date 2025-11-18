@@ -9,15 +9,7 @@ import {
 } from "../src";
 
 const Dashboard: React.FC = () => {
-  const { user, logout, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div>Loading...</div>
-      </div>
-    );
-  }
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
