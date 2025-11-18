@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **ktp-login-react** is a reusable React authentication library powered by Firebase. It provides pre-built components, hooks, and utilities for implementing login flows with OAuth providers (Google, GitHub, Microsoft, Facebook) and email/password authentication.
 
-- **Type**: NPM library (dual ESM + CJS)
+- **Type**: NPM library (ESM)
 - **Status**: Early development (v0.0.0)
 
 ## Build Commands
@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Command | Purpose |
 |---------|---------|
 | `npm run dev` | Start Vite dev server with demo app (localhost:5173) |
-| `npm run build` | Build ESM, CJS, and TypeScript declarations to dist/ |
+| `npm run build` | Build ESM and TypeScript declarations to dist/ |
 | `npm run lint` | ESLint on src/**/*.{ts,tsx} |
 | `npm run test` | Run Vitest test suite |
 | `npm run preview` | Serve production build locally |

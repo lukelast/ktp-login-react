@@ -1,6 +1,6 @@
 # ktp-login-react
 
-A comprehensive React authentication library powered by Firebase. Provides pre-built components and hooks for implementing login flows with multiple OAuth providers and email/password authentication. Ships as a dual-module library (ESM + CJS) with TypeScript declarations.
+A comprehensive React authentication library powered by Firebase. Provides pre-built components and hooks for implementing login flows with multiple OAuth providers and email/password authentication. Ships as an ESM library with TypeScript declarations.
 
 Designed to work with the [ktp-gcp-auth](https://github.com/lukelast/ktor-plus) backend library from the ktor-plus project.
 
@@ -429,7 +429,7 @@ After making changes to the library, rebuild and repack, then reinstall in your 
 | `npm run dev`     | Starts Vite in library mode for local development                  |
 | `npm run lint`    | Runs ESLint over all `ts/tsx` sources                              |
 | `npm run test`    | Executes the Vitest test suite                                     |
-| `npm run build`   | Produces `dist/index.js`, `dist/index.cjs`, and type declarations  |
+| `npm run build`   | Produces `dist/index.js` and type declarations  |
 | `npm run preview` | Serves the most recent build with Vite's preview server            |
 
 ## Project Structure

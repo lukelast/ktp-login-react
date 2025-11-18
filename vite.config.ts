@@ -21,8 +21,8 @@ export default defineConfig(({ command }) => ({
           lib: {
             entry: path.resolve(__dirname, "src/index.ts"),
             name: "KtpLoginReact",
-            formats: ["es", "cjs"],
-            fileName: (format) => (format === "es" ? "index.js" : "index.cjs"),
+            formats: ["es"],
+            fileName: () => "index.js",
           },
           rollupOptions: {
             // Don't bundle peer deps like react/react-dom
