@@ -20,9 +20,6 @@ initializeAuthLibrary({
       "password",
     ],
     routes: {
-      login: "/login",
-      signup: "/signup",
-      resetPassword: "/reset-password",
       afterLogin: "/dashboard",
       afterSignup: "/dashboard",
     },

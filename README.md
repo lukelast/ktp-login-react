@@ -92,7 +92,7 @@ function App() {
 
 ### 3. Set Up Routes
 
-Use `getAuthConfig()` to access the route configuration and avoid duplicating path strings:
+Use `getAuthConfig()` inside your component to access the route configuration and avoid duplicating path strings:
 
 ```tsx
 // src/routes.tsx
@@ -105,9 +105,9 @@ import {
   getAuthConfig,
 } from "ktp-login-react";
 
-const { auth: { routes } } = getAuthConfig();
-
 function YourRoutes() {
+  const { auth: { routes } } = getAuthConfig();
+
   return (
     <Routes>
       <Route path={routes.login} element={<LoginPage />} />

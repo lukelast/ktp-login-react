@@ -9,8 +9,6 @@ import {
   getAuthConfig,
 } from "../src";
 
-const { auth: { routes } } = getAuthConfig();
-
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
 
@@ -48,6 +46,7 @@ const Dashboard: React.FC = () => {
 
 const Home: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const { auth: { routes } } = getAuthConfig();
 
   if (isLoading) {
     return (
@@ -117,6 +116,8 @@ const Home: React.FC = () => {
 };
 
 export const App: React.FC = () => {
+  const { auth: { routes } } = getAuthConfig();
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />

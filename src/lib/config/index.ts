@@ -14,6 +14,15 @@ export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
     logout: userConfig.auth.endpoints?.logout || "/auth/logout",
   };
 
+  // Apply default routes if not provided
+  const routes = {
+    login: userConfig.auth.routes.login || "/p/login",
+    signup: userConfig.auth.routes.signup || "/p/signup",
+    resetPassword: userConfig.auth.routes.resetPassword || "/p/reset-password",
+    afterLogin: userConfig.auth.routes.afterLogin,
+    afterSignup: userConfig.auth.routes.afterSignup,
+  };
+
   config = {
     ...userConfig,
     firebase: {
@@ -23,6 +32,7 @@ export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
     auth: {
       ...userConfig.auth,
       endpoints,
+      routes,
     },
   };
 };

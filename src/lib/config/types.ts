@@ -14,9 +14,9 @@ export interface AuthLibraryConfig {
     };
 
     routes: {
-      login: string;
-      signup: string;
-      resetPassword: string;
+      login?: string; // Defaults to /p/login
+      signup?: string; // Defaults to /p/signup
+      resetPassword?: string; // Defaults to /p/reset-password
       afterLogin: string;
       afterSignup: string;
     };
