@@ -1,5 +1,4 @@
 import React, {
-  createContext,
   ReactNode,
   useEffect,
   useState,
@@ -9,11 +8,8 @@ import React, {
 import { User as FirebaseUser } from "firebase/auth";
 import { subscribeToAuthState, signOutUser } from "../firebase/firebase";
 import { getAuthConfig } from "../config";
-import { User, AuthContextType } from "./types";
-
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+import { User } from "./types";
+import { AuthContext } from "./AuthContext";
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
@@ -62,8 +58,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   useEffect(() => {
-    setIsLoading(true);
-
     const unsubscribe = subscribeToAuthState(async (firebaseUser) => {
       setIsLoading(true);
       setFirebaseUser(firebaseUser);
