@@ -12,7 +12,7 @@ export const SignupPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const config = getAuthConfig();
-  const minPasswordLength = config.auth.password?.minLength ?? 6;
+  const minPasswordLength = config.auth.password?.minLength ?? 8;
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -347,6 +347,44 @@ The pre-built components use Tailwind CSS classes. To customize:
 1. Override Tailwind classes in your config
 2. Or create your own components using the hooks and utilities
 
+## Local Development
+
+To run the demo app locally and test the UI components:
+
+### 1. Set up environment variables
+
+Copy the example file and add your Firebase credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your Firebase project credentials:
+
+```env
+VITE_FIREBASE_API_KEY=your-actual-api-key
+VITE_FIREBASE_PROJECT_ID=your-project-id
+```
+
+The `.env.local` file is gitignored and won't be committed.
+
+### 2. Start your backend server
+
+Make sure your backend is running at `http://localhost:8080` with the `/auth/login` and `/auth/logout` endpoints.
+
+**Note:** The Vite dev server is configured to proxy all `/auth` requests to `http://localhost:8080`, so you won't encounter CORS issues during development.
+
+### 3. Start the dev server
+
+```bash
+npm run dev
+```
+
+This opens the demo app at `http://localhost:5173` where you can:
+- Test all authentication pages (Login, Signup, Password Reset)
+- Try protected routes
+- View the UI components in action
+
 ## Scripts
 
 | Command           | Description                                                        |
