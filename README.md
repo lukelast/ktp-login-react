@@ -2,6 +2,8 @@
 
 A comprehensive React authentication library powered by Firebase. Provides pre-built components and hooks for implementing login flows with multiple OAuth providers and email/password authentication. Ships as a dual-module library (ESM + CJS) with TypeScript declarations.
 
+Designed to work with the [ktp-gcp-auth](https://github.com/lukelast/ktor-plus) backend library from the ktor-plus project.
+
 ## Features
 
 - Firebase Authentication integration
@@ -283,6 +285,8 @@ import {
 
 ## Backend Integration
 
+This library is designed to work with the [ktp-gcp-auth](https://github.com/lukelast/ktor-plus) library from the ktor-plus project, which provides the required backend endpoints for Ktor applications.
+
 The library expects your backend to have two endpoints:
 
 ### POST `/auth/login`
@@ -384,6 +388,34 @@ This opens the demo app at `http://localhost:5173` where you can:
 - Test all authentication pages (Login, Signup, Password Reset)
 - Try protected routes
 - View the UI components in action
+
+## Testing in Another Project
+
+To test the library in another project before publishing:
+
+### 1. Build and pack the library
+
+```bash
+npm run build
+npm pack
+# Creates ktp-login-react-0.0.0.tgz
+```
+
+### 2. Install in your project
+
+```bash
+npm install /path/to/ktp-login-react/ktp-login-react-0.0.0.tgz
+```
+
+### 3. Install peer dependencies
+
+```bash
+npm install react react-dom firebase react-router-dom tailwindcss
+```
+
+After making changes to the library, rebuild and repack, then reinstall in your project.
+
+**Note:** This approach is recommended over `npm link` on Windows, which can have symlink permission issues.
 
 ## Scripts
 
