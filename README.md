@@ -92,6 +92,8 @@ function App() {
 
 ### 3. Set Up Routes
 
+Use `getAuthConfig()` to access the route configuration and avoid duplicating path strings:
+
 ```tsx
 // src/routes.tsx
 import { Routes, Route } from "react-router-dom";
@@ -100,18 +102,21 @@ import {
   SignupPage,
   PasswordResetPage,
   ProtectedRoute,
+  getAuthConfig,
 } from "ktp-login-react";
+
+const { auth: { routes } } = getAuthConfig();
 
 function YourRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/reset-password" element={<PasswordResetPage />} />
+      <Route path={routes.login} element={<LoginPage />} />
+      <Route path={routes.signup} element={<SignupPage />} />
+      <Route path={routes.resetPassword} element={<PasswordResetPage />} />
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path={routes.afterLogin} element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>

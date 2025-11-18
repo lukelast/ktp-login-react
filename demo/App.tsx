@@ -6,7 +6,10 @@ import {
   PasswordResetPage,
   ProtectedRoute,
   useAuth,
+  getAuthConfig,
 } from "../src";
+
+const { auth: { routes } } = getAuthConfig();
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -69,7 +72,7 @@ const Home: React.FC = () => {
                 Logged in as {user.email}
               </p>
               <Link
-                to="/dashboard"
+                to={routes.afterLogin}
                 className="block w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 Go to Dashboard
@@ -78,19 +81,19 @@ const Home: React.FC = () => {
           ) : (
             <>
               <Link
-                to="/login"
+                to={routes.login}
                 className="block w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
               >
                 Login Page
               </Link>
               <Link
-                to="/signup"
+                to={routes.signup}
                 className="block w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
                 Signup Page
               </Link>
               <Link
-                to="/reset-password"
+                to={routes.resetPassword}
                 className="block w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
                 Password Reset Page
@@ -102,7 +105,7 @@ const Home: React.FC = () => {
         <div className="mt-8 pt-6 border-t border-gray-200">
           <h2 className="font-semibold mb-2">Test Protected Route:</h2>
           <Link
-            to="/dashboard"
+            to={routes.afterLogin}
             className="text-blue-600 hover:text-blue-800 underline"
           >
             Try accessing Dashboard (requires auth)
@@ -117,11 +120,11 @@ export const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/reset-password" element={<PasswordResetPage />} />
+      <Route path={routes.login} element={<LoginPage />} />
+      <Route path={routes.signup} element={<SignupPage />} />
+      <Route path={routes.resetPassword} element={<PasswordResetPage />} />
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path={routes.afterLogin} element={<Dashboard />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
