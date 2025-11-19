@@ -14,6 +14,10 @@ import {
   signOut,
   User,
   Auth,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
+  ActionCodeSettings,
 } from "firebase/auth";
 import { getAuthConfig } from "../config";
 
@@ -120,4 +124,36 @@ export const subscribeToAuthState = (
 ): (() => void) => {
   const firebaseAuth = getFirebaseAuth();
   return onAuthStateChanged(firebaseAuth, callback);
+};
+
+export const sendAuthLinkToEmail = async (
+  email: string,
+  actionCodeSettings: ActionCodeSettings
+): Promise<void> => {
+  const firebaseAuth = getFirebaseAuth();
+  try {
+    await sendSignInLinkToEmail(firebaseAuth, email, actionCodeSettings);
+  } catch (error) {
+    console.error("Error sending sign in link to email:", error);
+    throw error;
+  }
+};
+
+export const isAuthSignInWithEmailLink = (emailLink: string): boolean => {
+  const firebaseAuth = getFirebaseAuth();
+  return isSignInWithEmailLink(firebaseAuth, emailLink);
+};
+
+export const signInWithAuthEmailLink = async (
+  email: string,
+  emailLink: string
+): Promise<User> => {
+  const firebaseAuth = getFirebaseAuth();
+  try {
+    const result = await signInWithEmailLink(firebaseAuth, email, emailLink);
+    return result.user;
+  } catch (error) {
+    console.error("Error signing in with email link:", error);
+    throw error;
+  }
 };

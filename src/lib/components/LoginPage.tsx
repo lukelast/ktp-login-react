@@ -183,6 +183,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
                 <span>Sign in with Facebook</span>
               </button>
             )}
+
+            <button
+              onClick={() => navigate(config.auth.routes.signInWithEmail)}
+              className="ktp-btn-oauth"
+              disabled={isLoading}
+            >
+              <svg
+                className="ktp-btn-icon"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>Sign in with Email Link</span>
+            </button>
           </div>
 
           {enabledProviders.includes(EmailAuthProvider.PROVIDER_ID) && (
@@ -231,14 +247,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </form>
 
               <div className="ktp-links ktp-space-y-4">
-                  <div>
-                      <Link
-                          to={config.auth.routes.resetPassword}
-                          className="ktp-link"
-                      >
-                          Reset your password
-                      </Link>
-                  </div>
+                <div>
+                  <Link
+                    to={config.auth.routes.resetPassword}
+                    className="ktp-link"
+                  >
+                    Reset your password
+                  </Link>
+                </div>
                 <div>
                   <Link
                     to={config.auth.routes.signup}

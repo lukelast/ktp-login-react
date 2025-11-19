@@ -19,6 +19,7 @@ export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
     login: userConfig.auth.routes.login || "/p/login",
     signup: userConfig.auth.routes.signup || "/p/signup",
     resetPassword: userConfig.auth.routes.resetPassword || "/p/reset-password",
+    signInWithEmail: userConfig.auth.routes.signInWithEmail || "/p/email-signin",
     afterLogin: userConfig.auth.routes.afterLogin,
     afterSignup: userConfig.auth.routes.afterSignup,
   };

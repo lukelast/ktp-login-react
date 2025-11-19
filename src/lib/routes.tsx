@@ -2,6 +2,7 @@ import { RouteObject } from "react-router-dom";
 import { LoginPage } from "./components/LoginPage";
 import { SignupPage } from "./components/SignupPage";
 import { PasswordResetPage } from "./components/PasswordResetPage";
+import { EmailSignInPage } from "./components/EmailSignInPage";
 import { getAuthConfig } from "./config";
 
 export const getAuthRoutes = (): RouteObject[] => {
@@ -19,6 +20,10 @@ export const getAuthRoutes = (): RouteObject[] => {
         {
             path: routes.resetPassword,
             element: <PasswordResetPage />,
+        },
+        {
+            path: routes.signInWithEmail,
+            element: <EmailSignInPage />,
         },
     ];
 };

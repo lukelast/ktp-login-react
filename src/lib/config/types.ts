@@ -17,6 +17,7 @@ export interface AuthLibraryConfig {
       login?: string; // Defaults to /p/login
       signup?: string; // Defaults to /p/signup
       resetPassword?: string; // Defaults to /p/reset-password
+      signInWithEmail?: string; // Defaults to /p/email-signin
       afterLogin: string;
       afterSignup: string;
     };
@@ -43,6 +44,7 @@ export interface ResolvedAuthLibraryConfig {
       login: string;
       signup: string;
       resetPassword: string;
+      signInWithEmail: string;
       afterLogin: string;
       afterSignup: string;
     };
