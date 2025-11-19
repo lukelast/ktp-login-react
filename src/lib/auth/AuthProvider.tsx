@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { subscribeToAuthState, signOutUser } from "../firebase/firebase";
-import { getAuthConfig } from "../config";
+import { AuthService } from "./AuthService";
 import { User } from "./types";
 import { AuthContext } from "./AuthContext";
 
@@ -26,29 +26,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       try {
-        const config = getAuthConfig();
         const idToken = await firebaseUser.getIdToken();
-
-        const loginRes = await fetch(config.auth.endpoints.login, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ idToken }),
-        });
-
-        if (loginRes.ok) {
-          const loginData = await loginRes.json();
-          if (loginData.user) {
-            setUser(loginData.user);
-          } else {
-            console.error("Login succeeded but no user data returned");
-            setUser(null);
-          }
-        } else {
-          console.error("Backend login failed");
-          setUser(null);
-        }
+        const user = await AuthService.login(idToken);
+        setUser(user);
       } catch (error) {
         console.error("Error syncing with backend:", error);
         setUser(null);
@@ -70,9 +50,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const logout = useCallback(async () => {
     try {
-      const config = getAuthConfig();
       await signOutUser();
-      await fetch(config.auth.endpoints.logout, { method: "POST" });
+      await AuthService.logout();
       setUser(null);
       setFirebaseUser(null);
     } catch (error) {
