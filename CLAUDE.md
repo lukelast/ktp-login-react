@@ -30,7 +30,7 @@ src/
 │   ├── config/           # initializeAuthLibrary() + getAuthConfig()
 │   ├── auth/             # AuthProvider context, useAuth hook, ProtectedRoute
 │   ├── firebase/         # Firebase SDK wrappers (sign-in functions)
-│   └── components/       # LoginPage, SignupPage, PasswordResetPage (Tailwind)
+│   └── components/       # LoginPage, SignupPage, PasswordResetPage
 demo/                     # Local testing app with routes
 ```
 
@@ -62,7 +62,7 @@ demo/                     # Local testing app with routes
 - 2-space indentation, TypeScript throughout
 - Named exports for tree-shaking
 - Components/hooks: PascalCase; helpers: camelCase; constants: SCREAMING_SNAKE_CASE
-- Inline Tailwind classes (no separate CSS files)
+- Plain CSS with scoped `.ktp-*` class names in `src/styles.css`
 
 ## Key Types
 
@@ -83,4 +83,4 @@ interface User {
 
 - `npm publish` triggers build via `prepublishOnly` hook
 - Only `dist/` folder is published
-- Peer deps: react 18/19, firebase 10/11, react-router-dom 6/7, tailwindcss 3/4
+- Peer deps: react 18/19, firebase 10/11, react-router-dom 6/7

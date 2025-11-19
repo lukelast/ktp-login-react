@@ -1,3 +1,6 @@
+// Styles - imported here so Vite extracts them to styles.css
+import "./styles.css";
+
 // Configuration
 export {
   initializeAuthLibrary,

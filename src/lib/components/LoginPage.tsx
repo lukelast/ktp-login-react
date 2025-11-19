@@ -71,11 +71,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
 
   if (authLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-300 rounded mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded mb-8"></div>
+      <div className="ktp-page">
+        <div className="ktp-card">
+          <div className="ktp-skeleton">
+            <div className="ktp-skeleton-title"></div>
+            <div className="ktp-skeleton-text"></div>
           </div>
         </div>
       </div>
@@ -87,22 +87,22 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-lg shadow-md text-center">
-        <h1 className="text-3xl font-bold mb-4 text-gray-800">
+    <div className="ktp-page">
+      <div className="ktp-card">
+        <h1 className="ktp-title">
           {document.title}
         </h1>
-        <p className="text-lg text-gray-600 mb-8">Please log in</p>
-        <div className="w-full max-w-md mx-auto space-y-4">
-          <div className="space-y-3">
+        <p className="ktp-subtitle">Please log in</p>
+        <div className="ktp-content ktp-space-y-4">
+          <div className="ktp-space-y-3">
             {enabledProviders.includes(GoogleAuthProvider.PROVIDER_ID) && (
               <button
-                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition duration-200 relative"
+                className="ktp-btn-oauth"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
               >
                 <svg
-                  className="w-5 h-5 absolute left-4"
+                  className="ktp-btn-icon"
                   viewBox="0 0 48 48"
                 >
                   <path
@@ -131,10 +131,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               <button
                 onClick={handleGitHubLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition duration-200 relative"
+                className="ktp-btn-oauth"
               >
                 <svg
-                  className="w-5 h-5 absolute left-4"
+                  className="ktp-btn-icon"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -152,10 +152,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               <button
                 onClick={handleMicrosoftLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition duration-200 relative"
+                className="ktp-btn-oauth"
               >
                 <svg
-                  className="w-5 h-5 absolute left-4"
+                  className="ktp-btn-icon"
                   viewBox="0 0 23 23"
                 >
                   <path fill="#F14F21" d="M1 1h10v10H1V1z" />
@@ -171,10 +171,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               <button
                 onClick={handleFacebookLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition duration-200 relative"
+                className="ktp-btn-oauth"
               >
                 <svg
-                  className="w-5 h-5 absolute left-4"
+                  className="ktp-btn-icon"
                   fill="#1877F2"
                   viewBox="0 0 24 24"
                 >
@@ -187,18 +187,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
 
           {enabledProviders.includes(EmailAuthProvider.PROVIDER_ID) && (
             <>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+              <div className="ktp-divider">
+                <div className="ktp-divider-line">
+                  <div />
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
+                <div className="ktp-divider-text">
+                  <span>
                     Or continue with
                   </span>
                 </div>
               </div>
 
-              <form onSubmit={handleEmailSubmit} className="space-y-4">
+              <form onSubmit={handleEmailSubmit} className="ktp-space-y-4">
                 <div>
                   <input
                     type="email"
@@ -206,7 +206,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email address"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="ktp-input"
                   />
                 </div>
 
@@ -217,25 +217,25 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="ktp-input"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="ktp-btn-primary"
                 >
                   Sign In
                 </button>
               </form>
 
-              <div className="text-sm text-center space-y-2">
+              <div className="ktp-links ktp-space-y-4">
                 <div>
                   Don&apos;t have an account?{" "}
                   <Link
                     to={config.auth.routes.signup}
-                    className="font-medium text-blue-600 hover:text-blue-500"
+                    className="ktp-link"
                   >
                     Sign up
                   </Link>
@@ -243,7 +243,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
                 <div>
                   <Link
                     to={config.auth.routes.resetPassword}
-                    className="font-medium text-blue-600 hover:text-blue-500"
+                    className="ktp-link"
                   >
                     Forgot your password?
                   </Link>
@@ -253,8 +253,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
           )}
 
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-800">{error}</div>
+            <div className="ktp-error">
+              <div className="ktp-error-text">{error}</div>
             </div>
           )}
         </div>
@@ -262,11 +262,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
 
       {/* Loading overlay */}
       {(isLoading || authLoading) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-gray-700 font-medium">Signing in...</p>
+        <div className="ktp-loading-overlay">
+          <div className="ktp-loading-card">
+            <div className="ktp-loading-content">
+              <div className="ktp-spinner"></div>
+              <p className="ktp-loading-text">Signing in...</p>
             </div>
           </div>
         </div>

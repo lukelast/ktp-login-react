@@ -9,7 +9,7 @@ Designed to work with the [ktp-gcp-auth](https://github.com/lukelast/ktor-plus) 
 - Firebase Authentication integration
 - Multiple OAuth providers (Google, GitHub, Microsoft, Facebook)
 - Email/password authentication with signup and password reset
-- Pre-built, styled UI components (Tailwind CSS)
+- Pre-built, styled UI components
 - Protected route component for securing pages
 - Backend session synchronization
 - Fully typed with TypeScript
@@ -27,8 +27,6 @@ This library requires the following peer dependencies:
 ```bash
 npm install react react-dom firebase react-router-dom
 ```
-
-If using the pre-built UI components, you'll also need Tailwind CSS configured in your project.
 
 ## Quick Start
 
@@ -349,13 +347,6 @@ function CustomLogin() {
 }
 ```
 
-### Styling
-
-The pre-built components use Tailwind CSS classes. To customize:
-
-1. Override Tailwind classes in your config
-2. Or create your own components using the hooks and utilities
-
 ## Local Development
 
 To run the demo app locally and test the UI components:
@@ -415,7 +406,7 @@ npm install /path/to/ktp-login-react/ktp-login-react-0.0.0.tgz
 ### 3. Install peer dependencies
 
 ```bash
-npm install react react-dom firebase react-router-dom tailwindcss
+npm install react react-dom firebase react-router-dom
 ```
 
 After making changes to the library, rebuild and repack, then reinstall in your project.

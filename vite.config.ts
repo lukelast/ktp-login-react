@@ -18,6 +18,7 @@ export default defineConfig(({ command }) => ({
     command === "build"
       ? {
           sourcemap: true,
+          cssCodeSplit: false,
           lib: {
             entry: path.resolve(__dirname, "src/index.ts"),
             name: "KtpLoginReact",
@@ -39,6 +40,10 @@ export default defineConfig(({ command }) => ({
                 "react-dom": "ReactDOM",
                 "react/jsx-runtime": "jsxRuntime",
                 "react-router-dom": "ReactRouterDOM",
+              },
+              assetFileNames: (assetInfo) => {
+                if (assetInfo.name === "style.css") return "styles.css";
+                return assetInfo.name || "assets/[name]-[hash][extname]";
               },
             },
           },
