@@ -89,38 +89,33 @@ function App() {
 ```
 
 ### 3. Set Up Routes
-
-Use `getAuthConfig()` inside your component to access the route configuration and avoid duplicating path strings:
-
-```tsx
-// src/routes.tsx
-import { Routes, Route } from "react-router-dom";
-import {
-  LoginPage,
-  SignupPage,
-  PasswordResetPage,
-  ProtectedRoute,
-  getAuthConfig,
-} from "ktp-login-react";
-
-function YourRoutes() {
-  const { auth: { routes } } = getAuthConfig();
-
-  return (
-    <Routes>
-      <Route path={routes.login} element={<LoginPage />} />
-      <Route path={routes.signup} element={<SignupPage />} />
-      <Route path={routes.resetPassword} element={<PasswordResetPage />} />
-
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route path={routes.afterLogin} element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-      </Route>
-    </Routes>
-  );
-}
-```
+ 
+ You can easily add all authentication pages to your app using the `AuthRoutes` component. This will automatically register routes based on your configuration.
+ 
+ ```tsx
+ import { Routes, Route } from "react-router-dom";
+ import {
+   AuthRoutes,
+   ProtectedRoute,
+   getAuthConfig,
+ } from "ktp-login-react";
+ 
+ function YourRoutes() {
+   const { auth: { routes } } = getAuthConfig();
+ 
+   return (
+     <Routes>
+       <Route path="/*" element={<AuthRoutes />} />
+ 
+       {/* Protected routes */}
+       <Route element={<ProtectedRoute />}>
+         <Route path={routes.afterLogin} element={<Dashboard />} />
+         <Route path="/profile" element={<Profile />} />
+       </Route>
+     </Routes>
+   );
+ }
+ ```
 
 ### 4. Use the Auth Hook
 
@@ -322,31 +317,6 @@ Response:
 
 Called when user logs out.
 
-## Customization
-
-### Custom Login Flow
-
-If you need more control, use the Firebase utilities directly:
-
-```tsx
-import { signInWithGoogle, useAuth } from "ktp-login-react";
-
-function CustomLogin() {
-  const { user } = useAuth();
-
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithGoogle();
-      // AuthProvider automatically syncs with backend
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
-
-  return <button onClick={handleGoogleLogin}>Custom Google Login</button>;
-}
-```
-
 ## Local Development
 
 To run the demo app locally and test the UI components:
@@ -360,13 +330,6 @@ cp .env.example .env.local
 ```
 
 Edit `.env.local` with your Firebase project credentials:
-
-```env
-VITE_FIREBASE_API_KEY=your-actual-api-key
-VITE_FIREBASE_PROJECT_ID=your-project-id
-```
-
-The `.env.local` file is gitignored and won't be committed.
 
 ### 2. Start your backend server
 
@@ -410,8 +373,7 @@ npm install react react-dom firebase react-router-dom
 ```
 
 After making changes to the library, rebuild and repack, then reinstall in your project.
-
-**Note:** This approach is recommended over `npm link` on Windows, which can have symlink permission issues.
+Note you should change the version number when doing this to avoid headaches.
 
 ## Scripts
 
@@ -423,30 +385,8 @@ After making changes to the library, rebuild and repack, then reinstall in your 
 | `npm run build`   | Produces `dist/index.js` and type declarations  |
 | `npm run preview` | Serves the most recent build with Vite's preview server            |
 
-## Project Structure
-
-```
-src/
-├── index.ts                    # Main entry point
-└── lib/
-    ├── config/                 # Configuration system
-    │   ├── index.ts            # initializeAuthLibrary()
-    │   └── types.ts            # AuthLibraryConfig interface
-    ├── auth/                   # Core auth functionality
-    │   ├── types.ts            # User, AuthContextType
-    │   ├── useAuth.ts          # useAuth hook
-    │   ├── AuthProvider.tsx    # Context provider
-    │   └── ProtectedRoute.tsx  # Route guard
-    ├── firebase/               # Firebase integration
-    │   └── firebase.ts         # Auth functions
-    └── components/             # Pre-built UI
-        ├── LoginPage.tsx
-        ├── SignupPage.tsx
-        └── PasswordResetPage.tsx
-```
 
 ## Releasing
 
-1. Update the version in `package.json`
-2. Run `npm run lint && npm run test` to ensure quality gates pass
-3. Run `npm publish` - this triggers a clean build and uploads the `dist` folder
+Create a github release with the version number as the tag.
+The release will be built and deployed to the npm registry.

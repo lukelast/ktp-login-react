@@ -1,12 +1,10 @@
 import React from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import {
-  LoginPage,
-  SignupPage,
-  PasswordResetPage,
   ProtectedRoute,
   useAuth,
   getAuthConfig,
+  AuthRoutes,
 } from "../src";
 
 const demoStyles = `
@@ -238,14 +236,12 @@ export const App: React.FC = () => {
     <>
       <style>{demoStyles}</style>
       <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path={routes.login} element={<LoginPage />} />
-      <Route path={routes.signup} element={<SignupPage />} />
-      <Route path={routes.resetPassword} element={<PasswordResetPage />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path={routes.afterLogin} element={<Dashboard />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/*" element={<AuthRoutes />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path={routes.afterLogin} element={<Dashboard />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

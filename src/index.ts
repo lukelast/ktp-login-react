@@ -1,4 +1,3 @@
-// Styles - imported here so Vite extracts them to styles.css
 import "./styles.css";
 
 // Configuration
@@ -21,6 +20,10 @@ export { ProtectedRoute } from "./lib/auth/ProtectedRoute";
 export { LoginPage } from "./lib/components/LoginPage";
 export { SignupPage } from "./lib/components/SignupPage";
 export { PasswordResetPage } from "./lib/components/PasswordResetPage";
+
+// Router
+export { getAuthRoutes } from "./lib/routes";
+export { AuthRoutes } from "./lib/components/AuthRoutes";
 
 // Firebase utilities
 export {
