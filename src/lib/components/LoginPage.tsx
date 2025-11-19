@@ -92,7 +92,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
         <h1 className="ktp-title">
           {document.title}
         </h1>
-        <p className="ktp-subtitle">Please log in</p>
+        <p className="ktp-subtitle">Please sign in</p>
         <div className="ktp-content ktp-space-y-4">
           <div className="ktp-space-y-3">
             {enabledProviders.includes(GoogleAuthProvider.PROVIDER_ID) && (
@@ -193,7 +193,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
                 </div>
                 <div className="ktp-divider-text">
                   <span>
-                    Or continue with
+                    Sign in with email and password
                   </span>
                 </div>
               </div>
@@ -231,21 +231,20 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </form>
 
               <div className="ktp-links ktp-space-y-4">
+                  <div>
+                      <Link
+                          to={config.auth.routes.resetPassword}
+                          className="ktp-link"
+                      >
+                          Reset your password
+                      </Link>
+                  </div>
                 <div>
-                  Don&apos;t have an account?{" "}
                   <Link
                     to={config.auth.routes.signup}
                     className="ktp-link"
                   >
-                    Sign up
-                  </Link>
-                </div>
-                <div>
-                  <Link
-                    to={config.auth.routes.resetPassword}
-                    className="ktp-link"
-                  >
-                    Forgot your password?
+                    Create a new account with email
                   </Link>
                 </div>
               </div>
