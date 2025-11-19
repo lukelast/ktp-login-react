@@ -5,7 +5,6 @@ export interface User {
   nameFull: string;
   email: string;
   nameFirst: string;
-  subscription?: string;
 }
 
 export interface AuthContextType {
