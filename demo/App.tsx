@@ -7,121 +7,7 @@ import {
   AuthRoutes,
 } from "../src";
 
-const demoStyles = `
-  .ktp-demo-page {
-    min-height: 100vh;
-    background-color: #f9fafb;
-    padding: 2rem;
-  }
-  .ktp-demo-container {
-    max-width: 56rem;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .ktp-demo-card {
-    background-color: #ffffff;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    padding: 1.5rem;
-  }
-  .ktp-demo-title {
-    font-size: 1.875rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-  .ktp-demo-user-info {
-    background-color: #f3f4f6;
-    padding: 1rem;
-    border-radius: 0.375rem;
-  }
-  .ktp-demo-user-info h2 {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .ktp-demo-user-info pre {
-    font-size: 0.875rem;
-    overflow: auto;
-  }
-  .ktp-btn-danger {
-    background-color: #dc2626;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    border: none;
-    cursor: pointer;
-  }
-  .ktp-btn-danger:hover {
-    background-color: #b91c1c;
-  }
-  .ktp-btn-blue {
-    display: block;
-    width: 100%;
-    background-color: #2563eb;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    text-decoration: none;
-    text-align: center;
-  }
-  .ktp-btn-blue:hover {
-    background-color: #1d4ed8;
-  }
-  .ktp-btn-green {
-    display: block;
-    width: 100%;
-    background-color: #16a34a;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    text-decoration: none;
-    text-align: center;
-  }
-  .ktp-btn-green:hover {
-    background-color: #15803d;
-  }
-  .ktp-btn-gray {
-    display: block;
-    width: 100%;
-    background-color: #4b5563;
-    color: #ffffff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    text-decoration: none;
-    text-align: center;
-  }
-  .ktp-btn-gray:hover {
-    background-color: #374151;
-  }
-  .ktp-demo-section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-  }
-  .ktp-demo-section h2 {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .ktp-demo-link {
-    color: #2563eb;
-    text-decoration: underline;
-  }
-  .ktp-demo-link:hover {
-    color: #1e40af;
-  }
-  .ktp-text-success {
-    color: #16a34a;
-    margin-bottom: 1rem;
-  }
-  .ktp-text-lg {
-    font-size: 1.125rem;
-  }
-  .ktp-loading-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-`;
+import "./demoStyles.css";
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -234,7 +120,7 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <style>{demoStyles}</style>
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/*" element={<AuthRoutes />} />
