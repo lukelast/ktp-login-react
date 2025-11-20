@@ -74,21 +74,11 @@ export const PasswordResetPage: React.FC = () => {
 
         <div className="ktp-links ktp-mt-6">
           <div>
-            Remember your password?{" "}
             <Link
-              to={config.auth.routes.login}
+              to={config.auth.routes.signInWithPassword}
               className="ktp-link"
             >
-              Sign in
-            </Link>
-          </div>
-          <div>
-            Don&apos;t have an account?{" "}
-            <Link
-              to={config.auth.routes.signup}
-              className="ktp-link"
-            >
-              Sign up
+              Go Back
             </Link>
           </div>
         </div>
