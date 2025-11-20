@@ -9,6 +9,7 @@ import {
   OAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -92,9 +93,10 @@ export const signUpWithEmail = async (
       email,
       password
     );
+    await sendEmailVerification(result.user);
     return result.user;
   } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error creating user or sending verification email:", error);
     throw error;
   }
 };
