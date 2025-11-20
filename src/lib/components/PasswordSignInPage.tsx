@@ -46,7 +46,14 @@ export const PasswordSignInPage: React.FC = () => {
         <div className="ktp-page">
             <div className="ktp-card">
                 <h1 className="ktp-title">Sign in</h1>
-                <p className="ktp-subtitle">Enter your email and password to sign in</p>
+                <p className="ktp-subtitle">
+                    Enter your email and password to sign in.
+                    {" "}
+                    <Link to={config.auth.routes.signup} className="ktp-link">
+                        Create a new account
+                    </Link>
+                    {" "}if you&apos;re new.
+                </p>
 
                 <div className="ktp-content ktp-space-y-4">
                     <form onSubmit={handleLogin} className="ktp-space-y-4">
@@ -88,14 +95,6 @@ export const PasswordSignInPage: React.FC = () => {
                                 className="ktp-link"
                             >
                                 Reset your password
-                            </Link>
-                        </div>
-                        <div>
-                            <Link
-                                to={config.auth.routes.signup}
-                                className="ktp-link"
-                            >
-                                Create a new account with email
                             </Link>
                         </div>
                         <div>
