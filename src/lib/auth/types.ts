@@ -10,6 +10,8 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
+  isEmailVerified: boolean;
   isLoading: boolean;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<FirebaseUser | null>;
 }

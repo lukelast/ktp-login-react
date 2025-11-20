@@ -19,6 +19,7 @@ import {
   isSignInWithEmailLink,
   signInWithEmailLink,
   ActionCodeSettings,
+  reload,
 } from "firebase/auth";
 import { getAuthConfig } from "../config";
 
@@ -156,6 +157,39 @@ export const signInWithAuthEmailLink = async (
     return result.user;
   } catch (error) {
     console.error("Error signing in with email link:", error);
+    throw error;
+  }
+};
+
+export const sendVerificationEmail = async (): Promise<void> => {
+  const firebaseAuth = getFirebaseAuth();
+  const currentUser = firebaseAuth.currentUser;
+
+  if (!currentUser) {
+    throw new Error("No authenticated user to verify");
+  }
+
+  try {
+    await sendEmailVerification(currentUser);
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    throw error;
+  }
+};
+
+export const reloadCurrentUser = async (): Promise<User | null> => {
+  const firebaseAuth = getFirebaseAuth();
+  const currentUser = firebaseAuth.currentUser;
+
+  if (!currentUser) {
+    return null;
+  }
+
+  try {
+    await reload(currentUser);
+    return firebaseAuth.currentUser;
+  } catch (error) {
+    console.error("Error reloading current user:", error);
     throw error;
   }
 };

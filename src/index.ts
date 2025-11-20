@@ -21,6 +21,7 @@ export { LoginPage } from "./lib/components/LoginPage";
 export { SignupPage } from "./lib/components/SignupPage";
 export { PasswordResetPage } from "./lib/components/PasswordResetPage";
 export { PasswordSignInPage } from "./lib/components/PasswordSignInPage";
+export { EmailVerificationPage } from "./lib/components/EmailVerificationPage";
 
 // Router
 export { getAuthRoutes } from "./lib/routes";
@@ -37,5 +38,7 @@ export {
   resetPassword,
   signOutUser,
   subscribeToAuthState,
+  sendVerificationEmail,
+  reloadCurrentUser,
   MICROSOFT_PROVIDER_ID,
 } from "./lib/firebase/firebase";

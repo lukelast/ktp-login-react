@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { getAuthConfig } from "../config";
 import { useAuth } from "./useAuth";
 import { LoginPage } from "../components/LoginPage";
 
@@ -8,8 +9,10 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { user, firebaseUser, isEmailVerified, isLoading } = useAuth();
   const location = useLocation();
+  const config = getAuthConfig();
+  const redirectTo = location.pathname + location.search;
 
   if (isLoading) {
     return (
@@ -24,8 +27,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
+  if (firebaseUser && !isEmailVerified) {
+    return (
+      <Navigate
+        to={config.auth.routes.verifyEmail}
+        state={{ redirectTo }}
+        replace
+      />
+    );
+  }
+
   if (!user) {
-    return <LoginPage redirectTo={location.pathname + location.search} />;
+    return <LoginPage redirectTo={redirectTo} />;
   }
 
   return children ? <>{children}</> : <Outlet />;
