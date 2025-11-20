@@ -1,8 +1,12 @@
 import type React from "react";
-import {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
-import {isAuthSignInWithEmailLink, sendAuthLinkToEmail, signInWithAuthEmailLink,} from "../firebase/firebase";
-import {getAuthConfig} from "../config";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  isAuthSignInWithEmailLink,
+  sendAuthLinkToEmail,
+  signInWithAuthEmailLink,
+} from "../firebase/firebase";
+import { getAuthConfig } from "../config";
 
 export const EmailSignInPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -15,9 +19,7 @@ export const EmailSignInPage: React.FC = () => {
     if (isAuthSignInWithEmailLink(window.location.href)) {
       let emailForSignIn = window.localStorage.getItem("emailForSignIn");
       if (!emailForSignIn) {
-        emailForSignIn = window.prompt(
-          "Please provide your email for confirmation"
-        );
+        emailForSignIn = window.prompt("Please provide your email for confirmation");
       }
 
       if (emailForSignIn) {
@@ -40,7 +42,6 @@ export const EmailSignInPage: React.FC = () => {
       }
     }
   }, [config.auth.routes.afterLogin]);
-
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,8 +89,10 @@ export const EmailSignInPage: React.FC = () => {
         {isSent ? (
           <div className="ktp-content ktp-space-y-4">
             <div className="ktp-success-message">
-              <p>We sent an email to <strong>{email}</strong>. Click the link in the email to sign in. If you can't find
-                the email check your spam folder.</p>
+              <p>
+                We sent an email to <strong>{email}</strong>. Click the link in the email to sign
+                in. If you can't find the email check your spam folder.
+              </p>
             </div>
             <div className="ktp-links">
               <Link to={config.auth.routes.login} className="ktp-link">
@@ -100,7 +103,8 @@ export const EmailSignInPage: React.FC = () => {
         ) : (
           <div className="ktp-content ktp-space-y-4">
             <p className="ktp-subtitle">
-              Enter your email address and we'll send you a link to sign in. You don't need to create an account first.
+              Enter your email address and we'll send you a link to sign in. You don't need to
+              create an account first.
             </p>
 
             <form onSubmit={handleSendLink} className="ktp-space-y-4">
@@ -115,11 +119,7 @@ export const EmailSignInPage: React.FC = () => {
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="ktp-btn-primary"
-              >
+              <button type="submit" disabled={isLoading} className="ktp-btn-primary">
                 Send Sign In Link
               </button>
             </form>

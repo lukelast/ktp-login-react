@@ -8,33 +8,34 @@ import { EmailVerificationPage } from "./components/EmailVerificationPage";
 import { getAuthConfig } from "./config";
 
 export const getAuthRoutes = (): RouteObject[] => {
-    const { auth: { routes } } = getAuthConfig();
+  const {
+    auth: { routes },
+  } = getAuthConfig();
 
-    return [
-        {
-            path: routes.login,
-            element: <LoginPage />,
-        },
-        {
-            path: routes.signup,
-            element: <SignupPage />,
-        },
-        {
-            path: routes.resetPassword,
-            element: <PasswordResetPage />,
-        },
-        {
-            path: routes.signInWithEmail,
-            element: <EmailSignInPage />,
-        },
-        {
-            path: routes.signInWithPassword,
-            element: <PasswordSignInPage />,
-        },
-        {
-            path: routes.verifyEmail,
-            element: <EmailVerificationPage />,
-        },
-    ];
+  return [
+    {
+      path: routes.login,
+      element: <LoginPage />,
+    },
+    {
+      path: routes.signup,
+      element: <SignupPage />,
+    },
+    {
+      path: routes.resetPassword,
+      element: <PasswordResetPage />,
+    },
+    {
+      path: routes.signInWithEmail,
+      element: <EmailSignInPage />,
+    },
+    {
+      path: routes.signInWithPassword,
+      element: <PasswordSignInPage />,
+    },
+    {
+      path: routes.verifyEmail,
+      element: <EmailVerificationPage />,
+    },
+  ];
 };
-

@@ -1,16 +1,11 @@
 import type React from "react";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
-import {
-  ProtectedRoute,
-  useAuth,
-  getAuthConfig,
-  AuthRoutes,
-} from "../src";
+import {Routes, Route, Link, Navigate} from "react-router-dom";
+import {ProtectedRoute, useAuth, getAuthConfig, AuthRoutes} from "../src";
 
 import "./demoStyles.css";
 
 const Dashboard: React.FC = () => {
-  const { user, firebaseUser, logout } = useAuth();
+  const {user, firebaseUser, logout} = useAuth();
 
   return (
     <div className="ktp-demo-page">
@@ -19,11 +14,7 @@ const Dashboard: React.FC = () => {
           <h1 className="ktp-demo-title">Dashboard</h1>
           {user ? (
             <div className="ktp-space-y-4">
-              <button
-                type="button"
-                onClick={logout}
-                className="ktp-btn-danger"
-              >
+              <button type="button" onClick={logout} className="ktp-btn-danger">
                 Log Out
               </button>
               <p className="ktp-text-lg">
@@ -31,19 +22,17 @@ const Dashboard: React.FC = () => {
               </p>
               <div className="ktp-demo-user-info">
                 <h2>User Info:</h2>
-                <pre>
-                  {JSON.stringify(user, null, 2)}
-                </pre>
+                <pre>{JSON.stringify(user, null, 2)}</pre>
               </div>
               <div className="ktp-demo-user-info">
                 <h2>Firebase User:</h2>
                 <pre>
                   {firebaseUser
                     ? JSON.stringify(
-                        firebaseUser.toJSON ? firebaseUser.toJSON() : firebaseUser,
-                        null,
-                        2
-                      )
+                      firebaseUser.toJSON ? firebaseUser.toJSON() : firebaseUser,
+                      null,
+                      2,
+                    )
                     : "No Firebase user data"}
                 </pre>
               </div>
@@ -58,8 +47,10 @@ const Dashboard: React.FC = () => {
 };
 
 const Home: React.FC = () => {
-  const { user, isLoading } = useAuth();
-  const { auth: { routes } } = getAuthConfig();
+  const {user, isLoading} = useAuth();
+  const {
+    auth: {routes},
+  } = getAuthConfig();
 
   if (isLoading) {
     return (
@@ -71,43 +62,29 @@ const Home: React.FC = () => {
 
   return (
     <div className="ktp-page">
-      <div className="ktp-card-form" style={{ textAlign: 'center' }}>
+      <div className="ktp-card-form" style={{textAlign: "center"}}>
         <h1 className="ktp-demo-title">KTP Login React Demo</h1>
-        <p className="ktp-text" style={{ marginBottom: '1.5rem' }}>
+        <p className="ktp-text" style={{marginBottom: "1.5rem"}}>
           Test the authentication components locally
         </p>
 
         <div className="ktp-space-y-3">
           {user ? (
             <>
-              <p className="ktp-text-success">
-                Logged in as {user.email}
-              </p>
-              <Link
-                to={routes.afterLogin}
-                className="ktp-btn-blue"
-              >
+              <p className="ktp-text-success">Logged in as {user.email}</p>
+              <Link to={routes.afterLogin} className="ktp-btn-blue">
                 Go to Dashboard
               </Link>
             </>
           ) : (
             <>
-              <Link
-                to={routes.login}
-                className="ktp-btn-blue"
-              >
+              <Link to={routes.login} className="ktp-btn-blue">
                 Login Page
               </Link>
-              <Link
-                to={routes.signup}
-                className="ktp-btn-green"
-              >
+              <Link to={routes.signup} className="ktp-btn-green">
                 Signup Page
               </Link>
-              <Link
-                to={routes.resetPassword}
-                className="ktp-btn-gray"
-              >
+              <Link to={routes.resetPassword} className="ktp-btn-gray">
                 Password Reset Page
               </Link>
             </>
@@ -116,10 +93,7 @@ const Home: React.FC = () => {
 
         <div className="ktp-demo-section">
           <h2>Test Protected Route:</h2>
-          <Link
-            to={routes.afterLogin}
-            className="ktp-demo-link"
-          >
+          <Link to={routes.afterLogin} className="ktp-demo-link">
             Try accessing Dashboard (requires auth)
           </Link>
         </div>
@@ -129,16 +103,18 @@ const Home: React.FC = () => {
 };
 
 export const App: React.FC = () => {
-  const { auth: { routes } } = getAuthConfig();
+  const {
+    auth: {routes},
+  } = getAuthConfig();
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/*" element={<AuthRoutes />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path={routes.afterLogin} element={<Dashboard />} />
+      <Route path="/" element={<Home/>}/>
+      <Route path="/*" element={<AuthRoutes/>}/>
+      <Route element={<ProtectedRoute/>}>
+        <Route path={routes.afterLogin} element={<Dashboard/>}/>
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/" replace/>}/>
     </Routes>
   );
 };

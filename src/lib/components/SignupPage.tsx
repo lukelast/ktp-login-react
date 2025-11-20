@@ -31,9 +31,7 @@ export const SignupPage: React.FC = () => {
     }
 
     if (password.length < minPasswordLength) {
-      setError(
-        `Password must be at least ${minPasswordLength} characters long`
-      );
+      setError(`Password must be at least ${minPasswordLength} characters long`);
       return;
     }
 
@@ -42,8 +40,7 @@ export const SignupPage: React.FC = () => {
       await signUpWithEmail(email, password, trimmedName);
       navigate(config.auth.routes.afterSignup);
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to create account";
+      const errorMessage = error instanceof Error ? error.message : "Failed to create account";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -54,18 +51,13 @@ export const SignupPage: React.FC = () => {
     <div className="ktp-page">
       <div className="ktp-card-form">
         <div className="ktp-text-center">
-          <h1 className="ktp-title-sm">
-            Create Account
-          </h1>
+          <h1 className="ktp-title-sm">Create Account</h1>
         </div>
 
         <div className="ktp-space-y-4">
           <form onSubmit={handleEmailSignUp} className="ktp-space-y-4">
             <div>
-              <label
-                htmlFor="name"
-                className="ktp-label"
-              >
+              <label htmlFor="name" className="ktp-label">
                 Full name
               </label>
               <input
@@ -80,10 +72,7 @@ export const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="email"
-                className="ktp-label"
-              >
+              <label htmlFor="email" className="ktp-label">
                 Email address
               </label>
               <input
@@ -98,10 +87,7 @@ export const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="ktp-label"
-              >
+              <label htmlFor="password" className="ktp-label">
                 Password
               </label>
               <input
@@ -117,10 +103,7 @@ export const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="ktp-label"
-              >
+              <label htmlFor="confirmPassword" className="ktp-label">
                 Confirm Password
               </label>
               <input
@@ -135,21 +118,14 @@ export const SignupPage: React.FC = () => {
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="ktp-btn-primary"
-            >
+            <button type="submit" disabled={isLoading} className="ktp-btn-primary">
               {isLoading ? "Creating account..." : "Create Account"}
             </button>
           </form>
 
           <div className="ktp-links">
             Already have an account?{" "}
-            <Link
-              to={config.auth.routes.login}
-              className="ktp-link"
-            >
+            <Link to={config.auth.routes.login} className="ktp-link">
               Sign in
             </Link>
           </div>

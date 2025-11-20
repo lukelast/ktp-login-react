@@ -54,29 +54,18 @@ const signInWithProvider = async (provider: AuthProvider): Promise<User> => {
   }
 };
 
-export const signInWithGoogle = (): Promise<User> =>
-  signInWithProvider(googleProvider);
+export const signInWithGoogle = (): Promise<User> => signInWithProvider(googleProvider);
 
-export const signInWithGitHub = (): Promise<User> =>
-  signInWithProvider(githubProvider);
+export const signInWithGitHub = (): Promise<User> => signInWithProvider(githubProvider);
 
-export const signInWithFacebook = (): Promise<User> =>
-  signInWithProvider(facebookProvider);
+export const signInWithFacebook = (): Promise<User> => signInWithProvider(facebookProvider);
 
-export const signInWithMicrosoft = (): Promise<User> =>
-  signInWithProvider(microsoftProvider);
+export const signInWithMicrosoft = (): Promise<User> => signInWithProvider(microsoftProvider);
 
-export const signInWithEmail = async (
-  email: string,
-  password: string
-): Promise<User> => {
+export const signInWithEmail = async (email: string, password: string): Promise<User> => {
   const firebaseAuth = getFirebaseAuth();
   try {
-    const result = await signInWithEmailAndPassword(
-      firebaseAuth,
-      email,
-      password
-    );
+    const result = await signInWithEmailAndPassword(firebaseAuth, email, password);
     return result.user;
   } catch (error) {
     console.error("Error signing in with email:", error);
@@ -87,25 +76,18 @@ export const signInWithEmail = async (
 export const signUpWithEmail = async (
   email: string,
   password: string,
-  displayName?: string
+  displayName?: string,
 ): Promise<User> => {
   const firebaseAuth = getFirebaseAuth();
   try {
-    const result = await createUserWithEmailAndPassword(
-      firebaseAuth,
-      email,
-      password
-    );
+    const result = await createUserWithEmailAndPassword(firebaseAuth, email, password);
     if (displayName) {
       await updateProfile(result.user, { displayName });
     }
     await sendEmailVerification(result.user);
     return result.user;
   } catch (error) {
-    console.error(
-      "Error creating user, updating profile, or sending verification email:",
-      error
-    );
+    console.error("Error creating user, updating profile, or sending verification email:", error);
     throw error;
   }
 };
@@ -130,16 +112,14 @@ export const signOutUser = async (): Promise<void> => {
   }
 };
 
-export const subscribeToAuthState = (
-  callback: (user: User | null) => void
-): (() => void) => {
+export const subscribeToAuthState = (callback: (user: User | null) => void): (() => void) => {
   const firebaseAuth = getFirebaseAuth();
   return onAuthStateChanged(firebaseAuth, callback);
 };
 
 export const sendAuthLinkToEmail = async (
   email: string,
-  actionCodeSettings: ActionCodeSettings
+  actionCodeSettings: ActionCodeSettings,
 ): Promise<void> => {
   const firebaseAuth = getFirebaseAuth();
   try {
@@ -155,10 +135,7 @@ export const isAuthSignInWithEmailLink = (emailLink: string): boolean => {
   return isSignInWithEmailLink(firebaseAuth, emailLink);
 };
 
-export const signInWithAuthEmailLink = async (
-  email: string,
-  emailLink: string
-): Promise<User> => {
+export const signInWithAuthEmailLink = async (email: string, emailLink: string): Promise<User> => {
   const firebaseAuth = getFirebaseAuth();
   try {
     const result = await signInWithEmailLink(firebaseAuth, email, emailLink);

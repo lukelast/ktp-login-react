@@ -12,13 +12,7 @@ initializeAuthLibrary({
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
   },
   auth: {
-    enabledProviders: [
-      "google.com",
-      "github.com",
-      "microsoft.com",
-      "facebook.com",
-      "password",
-    ],
+    enabledProviders: ["google.com", "github.com", "microsoft.com", "facebook.com", "password"],
     routes: {
       afterLogin: "/dashboard",
       afterSignup: "/dashboard",
@@ -40,5 +34,5 @@ root.render(
         <App />
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

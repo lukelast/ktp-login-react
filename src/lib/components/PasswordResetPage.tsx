@@ -24,9 +24,7 @@ export const PasswordResetPage: React.FC = () => {
       setEmail("");
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to send password reset email.";
+        error instanceof Error ? error.message : "Failed to send password reset email.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -37,20 +35,13 @@ export const PasswordResetPage: React.FC = () => {
     <div className="ktp-page">
       <div className="ktp-card-form">
         <div className="ktp-text-center">
-          <h1 className="ktp-title-sm">
-            Reset Password
-          </h1>
-          <p className="ktp-text">
-            Enter your email to receive a password reset link
-          </p>
+          <h1 className="ktp-title-sm">Reset Password</h1>
+          <p className="ktp-text">Enter your email to receive a password reset link</p>
         </div>
 
         <form onSubmit={handlePasswordReset} className="ktp-space-y-4">
           <div>
-            <label
-              htmlFor="email"
-              className="ktp-label"
-            >
+            <label htmlFor="email" className="ktp-label">
               Email address
             </label>
             <input
@@ -64,21 +55,14 @@ export const PasswordResetPage: React.FC = () => {
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="ktp-btn-primary"
-          >
+          <button type="submit" disabled={isLoading} className="ktp-btn-primary">
             {isLoading ? "Sending..." : "Send Reset Email"}
           </button>
         </form>
 
         <div className="ktp-links ktp-mt-6">
           <div>
-            <Link
-              to={config.auth.routes.signInWithPassword}
-              className="ktp-link"
-            >
+            <Link to={config.auth.routes.signInWithPassword} className="ktp-link">
               Go Back
             </Link>
           </div>
@@ -91,7 +75,7 @@ export const PasswordResetPage: React.FC = () => {
         )}
 
         {error && (
-          <div className="ktp-error" style={{ marginTop: '1rem' }}>
+          <div className="ktp-error" style={{ marginTop: "1rem" }}>
             <div className="ktp-error-text">{error}</div>
           </div>
         )}

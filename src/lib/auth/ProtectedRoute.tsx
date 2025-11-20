@@ -29,13 +29,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }
 
   if (firebaseUser && !isEmailVerified) {
-    return (
-      <Navigate
-        to={config.auth.routes.verifyEmail}
-        state={{ redirectTo }}
-        replace
-      />
-    );
+    return <Navigate to={config.auth.routes.verifyEmail} state={{ redirectTo }} replace />;
   }
 
   if (!user) {

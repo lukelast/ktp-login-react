@@ -17,8 +17,7 @@ export const EmailVerificationPage: React.FC = () => {
   const location = useLocation();
   const config = getAuthConfig();
 
-  const redirectTo =
-    (location.state as { redirectTo?: string } | null)?.redirectTo;
+  const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo;
   const destination = redirectTo || config.auth.routes.afterLogin;
 
   useEffect(() => {
@@ -45,14 +44,10 @@ export const EmailVerificationPage: React.FC = () => {
 
     try {
       await sendVerificationEmail();
-      setStatusMessage(
-        "Verification email sent. Please check your inbox and spam folder."
-      );
+      setStatusMessage("Verification email sent. Please check your inbox and spam folder.");
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification email.";
+        error instanceof Error ? error.message : "Failed to send verification email.";
       setError(errorMessage);
     } finally {
       setIsSending(false);
@@ -71,14 +66,12 @@ export const EmailVerificationPage: React.FC = () => {
         navigate(destination, { replace: true });
       } else {
         setStatusMessage(
-          "Still waiting for verification. If you don't see the email, check your spam folder and try again."
+          "Still waiting for verification. If you don't see the email, check your spam folder and try again.",
         );
       }
     } catch (error: unknown) {
       const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Unable to check verification status right now.";
+        error instanceof Error ? error.message : "Unable to check verification status right now.";
       setError(errorMessage);
     } finally {
       setIsChecking(false);
@@ -105,9 +98,8 @@ export const EmailVerificationPage: React.FC = () => {
           <h1 className="ktp-title-sm">Verify your email</h1>
           <p className="ktp-text">
             We sent a verification link to{" "}
-            <strong>{firebaseUser?.email || "your email address"}</strong>.{" "}
-            Please check your inbox or spam folder, then click the link to
-            continue.
+            <strong>{firebaseUser?.email || "your email address"}</strong>. Please check your inbox
+            or spam folder, then click the link to continue.
           </p>
         </div>
 
@@ -131,8 +123,7 @@ export const EmailVerificationPage: React.FC = () => {
           </button>
 
           <div className="ktp-text">
-            If you don&apos;t see the email, check your spam folder or try
-            sending it again.
+            If you don&apos;t see the email, check your spam folder or try sending it again.
           </div>
 
           {statusMessage && (

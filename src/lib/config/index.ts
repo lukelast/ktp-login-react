@@ -5,8 +5,7 @@ let config: ResolvedAuthLibraryConfig | null = null;
 export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
   // Apply default authDomain if not provided
   const authDomain =
-    userConfig.firebase.authDomain ||
-    `${userConfig.firebase.projectId}.firebaseapp.com`;
+    userConfig.firebase.authDomain || `${userConfig.firebase.projectId}.firebaseapp.com`;
 
   // Apply default endpoints if not provided
   const endpoints = {
@@ -43,7 +42,7 @@ export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
 export const getAuthConfig = (): ResolvedAuthLibraryConfig => {
   if (!config) {
     throw new Error(
-      "Auth library not initialized. Call initializeAuthLibrary(config) before using auth components."
+      "Auth library not initialized. Call initializeAuthLibrary(config) before using auth components.",
     );
   }
   return config;

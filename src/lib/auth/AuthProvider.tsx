@@ -1,47 +1,32 @@
 import type React from "react";
-import {type 
-  ReactNode,
-  useEffect,
-  useState,
-  useMemo,
-  useCallback,
-} from "react"
+import { type ReactNode, useEffect, useState, useMemo, useCallback } from "react";
 import type { User as FirebaseUser } from "firebase/auth";
-import {
-  subscribeToAuthState,
-  signOutUser,
-  reloadCurrentUser,
-} from "../firebase/firebase";
+import { subscribeToAuthState, signOutUser, reloadCurrentUser } from "../firebase/firebase";
 import { AuthService } from "./AuthService";
 import type { User } from "./types";
 import { AuthContext } from "./AuthContext";
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const syncWithBackend = useCallback(
-    async (firebaseUser: FirebaseUser | null) => {
-      if (!firebaseUser) {
-        setUser(null);
-        return;
-      }
+  const syncWithBackend = useCallback(async (firebaseUser: FirebaseUser | null) => {
+    if (!firebaseUser) {
+      setUser(null);
+      return;
+    }
 
-      try {
-        const idToken = await firebaseUser.getIdToken();
-        const user = await AuthService.login(idToken);
-        setUser(user ?? null);
-      } catch (error) {
-        console.error("Error syncing with backend:", error);
-        setUser(null);
-      }
-    },
-    []
-  );
+    try {
+      const idToken = await firebaseUser.getIdToken();
+      const user = await AuthService.login(idToken);
+      setUser(user ?? null);
+    } catch (error) {
+      console.error("Error syncing with backend:", error);
+      setUser(null);
+    }
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthState(async (firebaseUser) => {
@@ -107,7 +92,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       logout,
       refreshUser,
     }),
-    [user, firebaseUser, isEmailVerified, isLoading, logout, refreshUser]
+    [user, firebaseUser, isEmailVerified, isLoading, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
