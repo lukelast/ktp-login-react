@@ -102,7 +102,7 @@ export const EmailSignInPage: React.FC = () => {
                 ) : (
                     <div className="ktp-content ktp-space-y-4">
                         <p className="ktp-subtitle">
-                            Enter your email address and we'll send you a link to sign in.
+                            Enter your email address and we'll send you a link to sign in. You don't need to create an account first.
                         </p>
 
                         <form onSubmit={handleSendLink} className="ktp-space-y-4">
