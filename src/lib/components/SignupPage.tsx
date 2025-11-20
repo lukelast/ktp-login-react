@@ -5,6 +5,7 @@ import { getAuthConfig } from "../config";
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,7 +18,12 @@ export const SignupPage: React.FC = () => {
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const trimmedName = name.trim();
 
+    if (!trimmedName) {
+      setError("Name is required");
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -32,7 +38,7 @@ export const SignupPage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      await signUpWithEmail(email, password);
+      await signUpWithEmail(email, password, trimmedName);
       navigate(config.auth.routes.afterSignup);
     } catch (error: unknown) {
       const errorMessage =
@@ -54,6 +60,24 @@ export const SignupPage: React.FC = () => {
 
         <div className="ktp-space-y-4">
           <form onSubmit={handleEmailSignUp} className="ktp-space-y-4">
+            <div>
+              <label
+                htmlFor="name"
+                className="ktp-label"
+              >
+                Full name
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                required
+                className="ktp-input"
+              />
+            </div>
+
             <div>
               <label
                 htmlFor="email"

@@ -20,6 +20,7 @@ import {
   signInWithEmailLink,
   ActionCodeSettings,
   reload,
+  updateProfile,
 } from "firebase/auth";
 import { getAuthConfig } from "../config";
 
@@ -85,7 +86,8 @@ export const signInWithEmail = async (
 
 export const signUpWithEmail = async (
   email: string,
-  password: string
+  password: string,
+  displayName?: string
 ): Promise<User> => {
   const firebaseAuth = getFirebaseAuth();
   try {
@@ -94,10 +96,16 @@ export const signUpWithEmail = async (
       email,
       password
     );
+    if (displayName) {
+      await updateProfile(result.user, { displayName });
+    }
     await sendEmailVerification(result.user);
     return result.user;
   } catch (error) {
-    console.error("Error creating user or sending verification email:", error);
+    console.error(
+      "Error creating user, updating profile, or sending verification email:",
+      error
+    );
     throw error;
   }
 };
