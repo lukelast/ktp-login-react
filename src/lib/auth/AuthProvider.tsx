@@ -1,18 +1,19 @@
-import React, {
+import type React from "react";
+import {type 
   ReactNode,
   useEffect,
   useState,
   useMemo,
   useCallback,
-} from "react";
-import { User as FirebaseUser } from "firebase/auth";
+} from "react"
+import type { User as FirebaseUser } from "firebase/auth";
 import {
   subscribeToAuthState,
   signOutUser,
   reloadCurrentUser,
 } from "../firebase/firebase";
 import { AuthService } from "./AuthService";
-import { User } from "./types";
+import type { User } from "./types";
 import { AuthContext } from "./AuthContext";
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({

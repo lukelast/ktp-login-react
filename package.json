@@ -23,7 +23,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc -p tsconfig.build.json",
-    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint": "npm run lint:eslint && npm run lint:biome",
+    "lint:eslint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:biome": "biome lint src demo",
+    "format": "biome format src demo --write",
+    "format:check": "biome format src demo --check",
     "preview": "vite preview",
     "test": "vitest",
     "prepublishOnly": "npm run build"
@@ -35,6 +39,7 @@
     "react-router-dom": "^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.6",
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.6",

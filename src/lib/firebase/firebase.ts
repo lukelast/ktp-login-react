@@ -1,6 +1,6 @@
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp, type FirebaseApp } from "firebase/app";
 import {
-  AuthProvider,
+  type AuthProvider,
   createUserWithEmailAndPassword,
   FacebookAuthProvider,
   getAuth,
@@ -13,12 +13,12 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
-  User,
-  Auth,
+  type User,
+  type Auth,
   sendSignInLinkToEmail,
   isSignInWithEmailLink,
   signInWithEmailLink,
-  ActionCodeSettings,
+  type ActionCodeSettings,
   reload,
   updateProfile,
 } from "firebase/auth";

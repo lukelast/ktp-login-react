@@ -1,4 +1,4 @@
-import { AuthLibraryConfig, ResolvedAuthLibraryConfig } from "./types";
+import type { AuthLibraryConfig, ResolvedAuthLibraryConfig } from "./types";
 
 let config: ResolvedAuthLibraryConfig | null = null;
 

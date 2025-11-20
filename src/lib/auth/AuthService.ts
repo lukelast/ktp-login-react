@@ -1,5 +1,5 @@
 import { getAuthConfig } from "../config";
-import { User } from "./types";
+import type { User } from "./types";
 
 export const AuthService = {
     login: async (idToken: string): Promise<User | null> => {

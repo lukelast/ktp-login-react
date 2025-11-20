@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { sendVerificationEmail } from "../firebase/firebase";
 import { useAuth } from "../auth/useAuth";

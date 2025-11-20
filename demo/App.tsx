@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import {
   ProtectedRoute,
@@ -20,6 +20,7 @@ const Dashboard: React.FC = () => {
           {user ? (
             <div className="ktp-space-y-4">
               <button
+                type="button"
                 onClick={logout}
                 className="ktp-btn-danger"
               >
@@ -131,16 +132,13 @@ export const App: React.FC = () => {
   const { auth: { routes } } = getAuthConfig();
 
   return (
-    <>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/*" element={<AuthRoutes />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path={routes.afterLogin} element={<Dashboard />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/*" element={<AuthRoutes />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path={routes.afterLogin} element={<Dashboard />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };

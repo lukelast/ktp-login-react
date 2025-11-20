@@ -1,4 +1,5 @@
-import React, { ReactNode } from "react";
+import type React from "react";
+import type { ReactNode } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { getAuthConfig } from "../config";
 import { useAuth } from "./useAuth";
@@ -41,5 +42,5 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <LoginPage redirectTo={redirectTo} />;
   }
 
-  return children ? <>{children}</> : <Outlet />;
+  return children ?? <Outlet />;
 };
