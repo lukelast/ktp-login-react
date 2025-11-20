@@ -25,6 +25,7 @@
   min-height: 100vh;
   background-color: #f3f4f6;
   padding: 1rem;
+  color: #111827;
 }
 
 .ktp-card {
@@ -319,4 +320,3 @@
   border-radius: 0.375rem;
   margin-bottom: 2rem;
 }
-
