@@ -10,7 +10,7 @@ import {
 import "./demoStyles.css";
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, firebaseUser, logout } = useAuth();
 
   return (
     <div className="ktp-demo-page">
@@ -19,6 +19,12 @@ const Dashboard: React.FC = () => {
           <h1 className="ktp-demo-title">Dashboard</h1>
           {user ? (
             <div className="ktp-space-y-4">
+              <button
+                onClick={logout}
+                className="ktp-btn-danger"
+              >
+                Log Out
+              </button>
               <p className="ktp-text-lg">
                 Welcome, <strong>{user.nameFirst || user.email}</strong>!
               </p>
@@ -28,12 +34,18 @@ const Dashboard: React.FC = () => {
                   {JSON.stringify(user, null, 2)}
                 </pre>
               </div>
-              <button
-                onClick={logout}
-                className="ktp-btn-danger"
-              >
-                Log Out
-              </button>
+              <div className="ktp-demo-user-info">
+                <h2>Firebase User:</h2>
+                <pre>
+                  {firebaseUser
+                    ? JSON.stringify(
+                        firebaseUser.toJSON ? firebaseUser.toJSON() : firebaseUser,
+                        null,
+                        2
+                      )
+                    : "No Firebase user data"}
+                </pre>
+              </div>
             </div>
           ) : (
             <p>Not logged in</p>
