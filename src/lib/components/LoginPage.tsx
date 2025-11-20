@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
-  signInWithEmail,
   signInWithGitHub,
   signInWithMicrosoft,
   signInWithGoogle,
@@ -23,8 +22,6 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -57,17 +54,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
     }
   };
 
-  const handleEmailSignIn = () =>
-    handleLogin(() => signInWithEmail(email, password));
+
   const handleGitHubLogin = () => handleLogin(signInWithGitHub);
   const handleMicrosoftLogin = () => handleLogin(signInWithMicrosoft);
   const handleGoogleLogin = () => handleLogin(signInWithGoogle);
   const handleFacebookLogin = () => handleLogin(signInWithFacebook);
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await handleEmailSignIn();
-  };
+
 
   if (authLoading) {
     return (
@@ -197,74 +190,31 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <span>Sign in with Email Link</span>
+              <span>Passwordless email sign in</span>
             </button>
           </div>
 
           {enabledProviders.includes(EmailAuthProvider.PROVIDER_ID) && (
-            <>
-              <div className="ktp-divider">
-                <div className="ktp-divider-line">
-                  <div />
-                </div>
-                <div className="ktp-divider-text">
-                  <span>
-                    Sign in with email and password
-                  </span>
-                </div>
-              </div>
-
-              <form onSubmit={handleEmailSubmit} className="ktp-space-y-4">
-                <div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email address"
-                    required
-                    className="ktp-input"
-                  />
-                </div>
-
-                <div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    required
-                    className="ktp-input"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="ktp-btn-primary"
-                >
-                  Sign In
-                </button>
-              </form>
-
-              <div className="ktp-links ktp-space-y-4">
-                <div>
-                  <Link
-                    to={config.auth.routes.resetPassword}
-                    className="ktp-link"
-                  >
-                    Reset your password
-                  </Link>
-                </div>
-                <div>
-                  <Link
-                    to={config.auth.routes.signup}
-                    className="ktp-link"
-                  >
-                    Create a new account with email
-                  </Link>
-                </div>
-              </div>
-            </>
+            <button
+              onClick={() => navigate(config.auth.routes.signInWithPassword)}
+              className="ktp-btn-oauth"
+              disabled={isLoading}
+            >
+              <svg
+                className="ktp-btn-icon"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              <span>Sign in with Email & Password</span>
+            </button>
           )}
 
           {error && (
