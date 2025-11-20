@@ -47,10 +47,12 @@ export const PasswordResetPage: React.FC = () => {
             <input
               id="email"
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
+              autoComplete="email"
               className="ktp-input"
             />
           </div>

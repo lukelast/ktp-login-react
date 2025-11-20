@@ -1,11 +1,11 @@
 import type React from "react";
-import {Routes, Route, Link, Navigate} from "react-router-dom";
-import {ProtectedRoute, useAuth, getAuthConfig, AuthRoutes} from "../src";
+import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { ProtectedRoute, useAuth, getAuthConfig, AuthRoutes } from "../src";
 
 import "./demoStyles.css";
 
 const Dashboard: React.FC = () => {
-  const {user, firebaseUser, logout} = useAuth();
+  const { user, firebaseUser, logout } = useAuth();
 
   return (
     <div className="ktp-demo-page">
@@ -29,10 +29,10 @@ const Dashboard: React.FC = () => {
                 <pre>
                   {firebaseUser
                     ? JSON.stringify(
-                      firebaseUser.toJSON ? firebaseUser.toJSON() : firebaseUser,
-                      null,
-                      2,
-                    )
+                        firebaseUser.toJSON ? firebaseUser.toJSON() : firebaseUser,
+                        null,
+                        2,
+                      )
                     : "No Firebase user data"}
                 </pre>
               </div>
@@ -47,9 +47,9 @@ const Dashboard: React.FC = () => {
 };
 
 const Home: React.FC = () => {
-  const {user, isLoading} = useAuth();
+  const { user, isLoading } = useAuth();
   const {
-    auth: {routes},
+    auth: { routes },
   } = getAuthConfig();
 
   if (isLoading) {
@@ -62,9 +62,9 @@ const Home: React.FC = () => {
 
   return (
     <div className="ktp-page">
-      <div className="ktp-card-form" style={{textAlign: "center"}}>
+      <div className="ktp-card-form" style={{ textAlign: "center" }}>
         <h1 className="ktp-demo-title">KTP Login React Demo</h1>
-        <p className="ktp-text" style={{marginBottom: "1.5rem"}}>
+        <p className="ktp-text" style={{ marginBottom: "1.5rem" }}>
           Test the authentication components locally
         </p>
 
@@ -104,17 +104,17 @@ const Home: React.FC = () => {
 
 export const App: React.FC = () => {
   const {
-    auth: {routes},
+    auth: { routes },
   } = getAuthConfig();
 
   return (
     <Routes>
-      <Route path="/" element={<Home/>}/>
-      <Route path="/*" element={<AuthRoutes/>}/>
-      <Route element={<ProtectedRoute/>}>
-        <Route path={routes.afterLogin} element={<Dashboard/>}/>
+      <Route path="/" element={<Home />} />
+      <Route path="/*" element={<AuthRoutes />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path={routes.afterLogin} element={<Dashboard />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace/>}/>
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

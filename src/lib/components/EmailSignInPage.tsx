@@ -111,10 +111,13 @@ export const EmailSignInPage: React.FC = () => {
               <div>
                 <input
                   type="email"
+                  id="emailLinkAddress"
+                  name="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email address"
                   required
+                  autoComplete="email"
                   className="ktp-input"
                 />
               </div>

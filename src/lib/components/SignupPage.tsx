@@ -63,10 +63,12 @@ export const SignupPage: React.FC = () => {
               <input
                 id="name"
                 type="text"
+                name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
                 required
+                autoComplete="name"
                 className="ktp-input"
               />
             </div>
@@ -78,10 +80,12 @@ export const SignupPage: React.FC = () => {
               <input
                 id="email"
                 type="email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
+                autoComplete="email"
                 className="ktp-input"
               />
             </div>
@@ -93,11 +97,13 @@ export const SignupPage: React.FC = () => {
               <input
                 id="password"
                 type="password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Create a password"
                 required
                 minLength={minPasswordLength}
+                autoComplete="new-password"
                 className="ktp-input"
               />
             </div>
@@ -109,11 +115,13 @@ export const SignupPage: React.FC = () => {
               <input
                 id="confirmPassword"
                 type="password"
+                name="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm your password"
                 required
                 minLength={minPasswordLength}
+                autoComplete="new-password"
                 className="ktp-input"
               />
             </div>

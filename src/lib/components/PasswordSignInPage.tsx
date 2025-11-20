@@ -59,10 +59,13 @@ export const PasswordSignInPage: React.FC = () => {
             <div>
               <input
                 type="email"
+                id="passwordSignInEmail"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email address"
                 required
+                autoComplete="email"
                 className="ktp-input"
               />
             </div>
@@ -70,10 +73,13 @@ export const PasswordSignInPage: React.FC = () => {
             <div>
               <input
                 type="password"
+                id="passwordSignInPassword"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 required
+                autoComplete="current-password"
                 className="ktp-input"
               />
             </div>
