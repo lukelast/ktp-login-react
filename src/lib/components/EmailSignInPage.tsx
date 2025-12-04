@@ -91,8 +91,9 @@ export const EmailSignInPage: React.FC = () => {
             <div className="ktp-success-message">
               <p>
                 We sent an email to <strong>{email}</strong>. Click the link in the email to sign
-                in. If you can't find the email check your spam folder.
+                in.
               </p>
+              <p>If you can't find the email check your spam folder.</p>
             </div>
             <div className="ktp-links">
               <Link to={config.auth.routes.login} className="ktp-link">
