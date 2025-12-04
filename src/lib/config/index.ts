@@ -2,28 +2,29 @@ import type { AuthLibraryConfig, ResolvedAuthLibraryConfig } from "./types";
 
 let config: ResolvedAuthLibraryConfig | null = null;
 
+const DEFAULTS = {
+  auth: {
+    endpoints: {
+      login: "/auth/login",
+      logout: "/auth/logout",
+    },
+    routes: {
+      login: "/p/login",
+      signup: "/p/signup",
+      resetPassword: "/p/reset-password",
+      signInWithEmail: "/p/login-email",
+      signInWithPassword: "/p/login-password",
+      verifyEmail: "/p/verify-email",
+    },
+    password: {
+      minLength: 8,
+    }
+  },
+};
+
 export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
-  // Apply default authDomain if not provided
   const authDomain =
     userConfig.firebase.authDomain || `${userConfig.firebase.projectId}.firebaseapp.com`;
-
-  // Apply default endpoints if not provided
-  const endpoints = {
-    login: userConfig.auth.endpoints?.login || "/auth/login",
-    logout: userConfig.auth.endpoints?.logout || "/auth/logout",
-  };
-
-  // Apply default routes if not provided
-  const routes = {
-    login: userConfig.auth.routes.login || "/p/login",
-    signup: userConfig.auth.routes.signup || "/p/signup",
-    resetPassword: userConfig.auth.routes.resetPassword || "/p/reset-password",
-    signInWithEmail: userConfig.auth.routes.signInWithEmail || "/p/login-email",
-    signInWithPassword: userConfig.auth.routes.signInWithPassword || "/p/login-password",
-    verifyEmail: userConfig.auth.routes.verifyEmail || "/p/verify-email",
-    afterLogin: userConfig.auth.routes.afterLogin,
-    afterSignup: userConfig.auth.routes.afterSignup,
-  };
 
   config = {
     ...userConfig,
@@ -33,8 +34,18 @@ export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
     },
     auth: {
       ...userConfig.auth,
-      endpoints,
-      routes,
+      endpoints: {
+        ...DEFAULTS.auth.endpoints,
+        ...userConfig.auth.endpoints,
+      },
+      routes: {
+        ...DEFAULTS.auth.routes,
+        ...userConfig.auth.routes,
+      },
+      password: {
+        ...DEFAULTS.auth.password,
+        ...userConfig.auth.password,
+      },
     },
   };
 };

@@ -15,7 +15,6 @@ initializeAuthLibrary({
     enabledProviders: ["google.com", "github.com", "microsoft.com", "facebook.com", "password"],
     routes: {
       afterLogin: "/dashboard",
-      afterSignup: "/dashboard",
     },
   },
 });

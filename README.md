@@ -61,7 +61,6 @@ initializeAuthLibrary({
       signup: "/signup",
       resetPassword: "/reset-password",
       afterLogin: "/dashboard",
-      afterSignup: "/",
     },
     password: {
       minLength: 8,
@@ -158,7 +157,6 @@ interface AuthLibraryConfig {
       signup: string; // Signup page route
       resetPassword: string; // Password reset page route
       afterLogin: string; // Redirect after successful login
-      afterSignup: string; // Redirect after successful signup
     };
     password?: {
       minLength?: number; // Minimum password length (default: 6)

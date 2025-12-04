@@ -14,7 +14,7 @@ export const SignupPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const config = getAuthConfig();
-  const minPasswordLength = config.auth.password?.minLength ?? 8;
+  const minPasswordLength = config.auth.password.minLength;
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +38,7 @@ export const SignupPage: React.FC = () => {
     setIsLoading(true);
     try {
       await signUpWithEmail(email, password, trimmedName);
-      navigate(config.auth.routes.afterSignup);
+      navigate(config.auth.routes.afterLogin);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Failed to create account";
       setError(errorMessage);
