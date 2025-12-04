@@ -5,6 +5,7 @@ import { PasswordResetPage } from "./components/PasswordResetPage";
 import { EmailSignInPage } from "./components/EmailSignInPage";
 import { PasswordSignInPage } from "./components/PasswordSignInPage";
 import { EmailVerificationPage } from "./components/EmailVerificationPage";
+import { AnonymousLoginPage } from "./components/AnonymousLoginPage";
 import { getAuthConfig } from "./config";
 
 export const getAuthRoutes = (): RouteObject[] => {
@@ -36,6 +37,10 @@ export const getAuthRoutes = (): RouteObject[] => {
     {
       path: routes.verifyEmail,
       element: <EmailVerificationPage />,
+    },
+    {
+      path: routes.anonymousLogin,
+      element: <AnonymousLoginPage />,
     },
   ];
 };

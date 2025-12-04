@@ -24,6 +24,7 @@ export interface AuthLibraryConfig {
       signInWithPassword?: string;
       verifyEmail?: string;
       afterLogin: string;
+      anonymousLogin?: string;
     };
 
     password?: {
@@ -52,6 +53,7 @@ export interface ResolvedAuthLibraryConfig {
       signInWithPassword: string;
       verifyEmail: string;
       afterLogin: string;
+      anonymousLogin: string;
     };
 
     password: {

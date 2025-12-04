@@ -15,10 +15,11 @@ const DEFAULTS = {
       signInWithEmail: "/p/login-email",
       signInWithPassword: "/p/login-password",
       verifyEmail: "/p/verify-email",
+      anonymousLogin: "/p/anonymous-login",
     },
     password: {
       minLength: 8,
-    }
+    },
   },
 };
 

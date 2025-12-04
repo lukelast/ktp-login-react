@@ -5,40 +5,41 @@ import { subscribeToAuthState, signOutUser, reloadCurrentUser } from "../firebas
 import { AuthService } from "./AuthService";
 import type { User } from "./types";
 import { AuthContext } from "./AuthContext";
+import { needsEmailValidation } from "./util";
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const syncWithBackend = useCallback(async (firebaseUser: FirebaseUser | null) => {
-    if (!firebaseUser) {
-      setUser(null);
-      return;
-    }
+  const syncWithBackend = useCallback(
+    async (firebaseUser: FirebaseUser | null, forceRefresh = false) => {
+      if (!firebaseUser) {
+        setUser(null);
+        return;
+      }
 
-    try {
-      const idToken = await firebaseUser.getIdToken();
-      const user = await AuthService.login(idToken);
-      setUser(user ?? null);
-    } catch (error) {
-      console.error("Error syncing with backend:", error);
-      setUser(null);
-    }
-  }, []);
+      try {
+        const idToken = await firebaseUser.getIdToken(forceRefresh);
+        const user = await AuthService.login(idToken);
+        setUser(user ?? null);
+      } catch (error) {
+        console.error("Error syncing with backend:", error);
+        setUser(null);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthState(async (firebaseUser) => {
       setIsLoading(true);
       setFirebaseUser(firebaseUser);
-      const verified = firebaseUser?.emailVerified ?? false;
-      setIsEmailVerified(verified);
 
-      if (firebaseUser && verified) {
-        await syncWithBackend(firebaseUser);
-      } else {
+      if (needsEmailValidation(firebaseUser)) {
         setUser(null);
+      } else if (firebaseUser) {
+        await syncWithBackend(firebaseUser);
       }
 
       setIsLoading(false);
@@ -53,13 +54,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const refreshedUser = await reloadCurrentUser();
       setFirebaseUser(refreshedUser);
 
-      const verified = refreshedUser?.emailVerified ?? false;
-      setIsEmailVerified(verified);
-
-      if (refreshedUser && verified) {
-        await syncWithBackend(refreshedUser);
-      } else if (!verified) {
+      if (needsEmailValidation(refreshedUser)) {
         setUser(null);
+      } else if (refreshedUser) {
+        await syncWithBackend(refreshedUser, true);
       }
 
       return refreshedUser;
@@ -77,7 +75,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await AuthService.logout();
       setUser(null);
       setFirebaseUser(null);
-      setIsEmailVerified(false);
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -87,12 +84,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     () => ({
       user,
       firebaseUser,
-      isEmailVerified,
       isLoading,
       logout,
       refreshUser,
     }),
-    [user, firebaseUser, isEmailVerified, isLoading, logout, refreshUser],
+    [user, firebaseUser, isLoading, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

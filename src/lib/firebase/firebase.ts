@@ -21,6 +21,7 @@ import {
   type ActionCodeSettings,
   reload,
   updateProfile,
+  signInAnonymously,
 } from "firebase/auth";
 import { getAuthConfig } from "../config";
 
@@ -175,6 +176,17 @@ export const reloadCurrentUser = async (): Promise<User | null> => {
     return firebaseAuth.currentUser;
   } catch (error) {
     console.error("Error reloading current user:", error);
+    throw error;
+  }
+};
+
+export const signInAnonymousUser = async (): Promise<User> => {
+  const firebaseAuth = getFirebaseAuth();
+  try {
+    const result = await signInAnonymously(firebaseAuth);
+    return result.user;
+  } catch (error) {
+    console.error("Error signing in anonymously:", error);
     throw error;
   }
 };

@@ -22,6 +22,7 @@ export { SignupPage } from "./lib/components/SignupPage";
 export { PasswordResetPage } from "./lib/components/PasswordResetPage";
 export { PasswordSignInPage } from "./lib/components/PasswordSignInPage";
 export { EmailVerificationPage } from "./lib/components/EmailVerificationPage";
+export { AnonymousLoginPage } from "./lib/components/AnonymousLoginPage";
 
 // Router
 export { getAuthRoutes } from "./lib/routes";

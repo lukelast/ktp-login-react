@@ -4,13 +4,14 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { getAuthConfig } from "../config";
 import { useAuth } from "./useAuth";
 import { LoginPage } from "../components/LoginPage";
+import { needsEmailValidation } from "./util";
 
 interface ProtectedRouteProps {
   children?: ReactNode;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, firebaseUser, isEmailVerified, isLoading } = useAuth();
+  const { user, firebaseUser, isLoading } = useAuth();
   const location = useLocation();
   const config = getAuthConfig();
   const redirectTo = location.pathname + location.search;
@@ -28,7 +29,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (firebaseUser && !isEmailVerified) {
+  if (needsEmailValidation(firebaseUser)) {
     return <Navigate to={config.auth.routes.verifyEmail} state={{ redirectTo }} replace />;
   }
 

@@ -4,9 +4,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { sendVerificationEmail } from "../firebase/firebase";
 import { useAuth } from "../auth/useAuth";
 import { getAuthConfig } from "../config";
+import { needsEmailValidation } from "../auth/util";
 
 export const EmailVerificationPage: React.FC = () => {
-  const { firebaseUser, isEmailVerified, isLoading, refreshUser } = useAuth();
+  const { firebaseUser, isLoading, refreshUser } = useAuth();
 
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,10 +22,10 @@ export const EmailVerificationPage: React.FC = () => {
   const destination = redirectTo || config.auth.routes.afterLogin;
 
   useEffect(() => {
-    if (!isLoading && isEmailVerified) {
+    if (!isLoading && !needsEmailValidation(firebaseUser)) {
       navigate(destination, { replace: true });
     }
-  }, [destination, isEmailVerified, isLoading, navigate]);
+  }, [destination, isLoading, navigate, firebaseUser]);
 
   useEffect(() => {
     if (!isLoading && !firebaseUser) {

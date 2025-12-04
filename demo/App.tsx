@@ -18,7 +18,7 @@ const Dashboard: React.FC = () => {
                 Log Out
               </button>
               <p className="ktp-text-lg">
-                Welcome, <strong>{user.nameFirst || user.email}</strong>!
+                Welcome, <strong>{user.nameFirst || user.email || "Anonymous User"}</strong>!
               </p>
               <div className="ktp-demo-user-info">
                 <h2>User Info:</h2>
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
         <div className="ktp-space-y-3">
           {user ? (
             <>
-              <p className="ktp-text-success">Logged in as {user.email}</p>
+              <p className="ktp-text-success">Logged in as {user.email || "Anonymous"}</p>
               <Link to={routes.afterLogin} className="ktp-btn-blue">
                 Go to Dashboard
               </Link>
@@ -86,6 +86,9 @@ const Home: React.FC = () => {
               </Link>
               <Link to={routes.resetPassword} className="ktp-btn-gray">
                 Password Reset Page
+              </Link>
+              <Link to={routes.anonymousLogin} className="ktp-btn-gray">
+                Anonymous Login
               </Link>
             </>
           )}
