@@ -1,0 +1,421 @@
+# ktp-login-react
+
+> React authentication library powered by Firebase with pre-built login components and OAuth support
+
+## Installation
+
+```bash
+npm install ktp-login-react
+npm install react react-dom firebase react-router-dom
+```
+
+## Quick Setup
+
+### 1. Initialize Library
+
+Call `initializeAuthLibrary()` before rendering any components (typically in main.tsx):
+
+```tsx
+import { initializeAuthLibrary } from "ktp-login-react";
+
+initializeAuthLibrary({
+  firebase: {
+    apiKey: "your-api-key",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+  },
+  auth: {
+    enabledProviders: ["google.com", "github.com", "password"],
+    endpoints: {
+      login: "/api/auth/login",
+      logout: "/api/auth/logout",
+    },
+    routes: {
+      login: "/login",
+      signup: "/signup",
+      resetPassword: "/reset-password",
+      afterLogin: "/dashboard",
+      afterSignup: "/",
+    },
+    password: {
+      minLength: 8,
+    },
+  },
+});
+```
+
+### 2. Wrap App with AuthProvider
+
+```tsx
+import { AuthProvider } from "ktp-login-react";
+import { BrowserRouter } from "react-router-dom";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <YourRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+```
+
+### 3. Import Styles
+
+Import the CSS in your main entry file:
+
+```tsx
+import "ktp-login-react/styles.css";
+```
+
+### 4. Setup Routes
+
+```tsx
+import { Routes, Route } from "react-router-dom";
+import { AuthRoutes, ProtectedRoute } from "ktp-login-react";
+
+function YourRoutes() {
+  return (
+    <Routes>
+      <Route path="/*" element={<AuthRoutes />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Route>
+    </Routes>
+  );
+}
+```
+
+## Core Exports
+
+### Components
+
+- `AuthProvider` - Context provider for auth state (wraps app)
+- `LoginPage` - Pre-built login page with OAuth and email/password
+- `SignupPage` - Email/password signup page
+- `PasswordResetPage` - Password reset request page
+- `PasswordSignInPage` - Email/password sign-in page
+- `EmailVerificationPage` - Email verification page
+- `ProtectedRoute` - Route guard requiring authentication
+- `AuthRoutes` - Component that renders all auth pages based on config
+
+### Hooks
+
+- `useAuth()` - Returns auth context with user state
+
+### Functions
+
+- `initializeAuthLibrary(config)` - Initialize with config (must be called first)
+- `getAuthConfig()` - Get current config
+- `isAuthLibraryInitialized()` - Check if initialized
+- `getAuthRoutes()` - Get route configuration for auth pages
+
+### Firebase Utilities
+
+- `signInWithGoogle()` - Google OAuth sign-in
+- `signInWithGitHub()` - GitHub OAuth sign-in
+- `signInWithMicrosoft()` - Microsoft OAuth sign-in
+- `signInWithFacebook()` - Facebook OAuth sign-in
+- `signInWithEmail(email, password)` - Email/password sign-in
+- `signUpWithEmail(email, password)` - Email/password signup
+- `resetPassword(email)` - Send password reset email
+- `signOutUser()` - Sign out current user
+- `subscribeToAuthState(callback)` - Subscribe to auth state changes
+- `sendVerificationEmail()` - Send email verification
+- `reloadCurrentUser()` - Reload current Firebase user
+- `MICROSOFT_PROVIDER_ID` - Microsoft provider ID constant
+
+## Configuration
+
+```typescript
+interface AuthLibraryConfig {
+  firebase: {
+    apiKey: string;
+    authDomain?: string; // Defaults to {projectId}.firebaseapp.com
+    projectId: string;
+  };
+
+  auth: {
+    enabledProviders: string[]; // Provider IDs to enable
+    endpoints?: {
+      login?: string; // Default: "/auth/login"
+      logout?: string; // Default: "/auth/logout"
+    };
+    routes: {
+      login?: string; // Default: "/p/login"
+      signup?: string; // Default: "/p/signup"
+      resetPassword?: string; // Default: "/p/reset-password"
+      signInWithEmail?: string; // Default: "/p/login-email"
+      signInWithPassword?: string; // Default: "/p/login-password"
+      verifyEmail?: string; // Default: "/p/verify-email"
+      afterLogin: string; // Required: where to redirect after login
+      afterSignup: string; // Required: where to redirect after signup
+    };
+    password?: {
+      minLength?: number; // Default: 6
+    };
+  };
+}
+```
+
+### Configuration Defaults
+
+**Many values are optional and have sensible defaults.** You only need to provide:
+
+**Required fields:**
+- `firebase.apiKey`
+- `firebase.projectId`
+- `auth.enabledProviders`
+- `auth.routes.afterLogin`
+- `auth.routes.afterSignup`
+
+**Optional fields with defaults:**
+- `firebase.authDomain` → defaults to `{projectId}.firebaseapp.com`
+- `auth.endpoints.login` → defaults to `/auth/login`
+- `auth.endpoints.logout` → defaults to `/auth/logout`
+- `auth.routes.login` → defaults to `/p/login`
+- `auth.routes.signup` → defaults to `/p/signup`
+- `auth.routes.resetPassword` → defaults to `/p/reset-password`
+- `auth.routes.signInWithEmail` → defaults to `/p/login-email`
+- `auth.routes.signInWithPassword` → defaults to `/p/login-password`
+- `auth.routes.verifyEmail` → defaults to `/p/verify-email`
+- `auth.password.minLength` → defaults to `6`
+
+**Minimal configuration example:**
+
+```tsx
+initializeAuthLibrary({
+  firebase: {
+    apiKey: "your-api-key",
+    projectId: "your-project-id",
+  },
+  auth: {
+    enabledProviders: ["google.com", "password"],
+    routes: {
+      afterLogin: "/dashboard",
+      afterSignup: "/",
+    },
+  },
+});
+```
+
+### Provider IDs
+
+Valid values for `enabledProviders` array:
+- `"google.com"` - Google OAuth
+- `"github.com"` - GitHub OAuth
+- `"microsoft.com"` - Microsoft OAuth
+- `"facebook.com"` - Facebook OAuth
+- `"password"` - Email/password authentication
+
+## useAuth Hook
+
+```typescript
+const { user, firebaseUser, isLoading, logout } = useAuth();
+```
+
+Returns:
+- `user: User | null` - Backend user object
+- `firebaseUser: FirebaseUser | null` - Firebase user object
+- `isLoading: boolean` - Loading state
+- `logout: () => Promise<void>` - Logout function
+
+## User Type
+
+```typescript
+interface User {
+  userId: string;
+  nameFull: string;
+  email: string;
+  nameFirst: string;
+  subscription?: string;
+}
+```
+
+## Backend Requirements
+
+This library expects a backend with two endpoints:
+
+### POST /auth/login
+
+Called after Firebase authentication to sync session with backend.
+
+Request:
+```json
+{
+  "idToken": "firebase-jwt-token"
+}
+```
+
+Response:
+```json
+{
+  "user": {
+    "userId": "123",
+    "nameFull": "John Doe",
+    "email": "john@example.com",
+    "nameFirst": "John",
+    "subscription": "pro"
+  }
+}
+```
+
+### POST /auth/logout
+
+Called when user logs out. No request body required.
+
+## Common Usage Patterns
+
+### Using Pre-built Pages
+
+```tsx
+import { AuthRoutes, ProtectedRoute } from "ktp-login-react";
+import { Routes, Route } from "react-router-dom";
+
+function App() {
+  return (
+    <Routes>
+      {/* Auth pages at /login, /signup, /reset-password, etc. */}
+      <Route path="/*" element={<AuthRoutes />} />
+
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Route>
+    </Routes>
+  );
+}
+```
+
+### Reading Library Config for Links
+
+**Important:** The library uses default routes (e.g., `/p/login`, `/p/signup`) that can be customized during initialization. Consumer applications should **read the library config** to create links rather than hardcoding paths. This ensures links match the configured routes.
+
+Use `getAuthRoutes()` to get the configured auth routes:
+
+```tsx
+import { getAuthRoutes } from "ktp-login-react";
+import { Link } from "react-router-dom";
+
+function Header() {
+  const routes = getAuthRoutes();
+
+  return (
+    <nav>
+      <Link to={routes.login}>Login</Link>
+      <Link to={routes.signup}>Sign Up</Link>
+      <Link to={routes.resetPassword}>Reset Password</Link>
+    </nav>
+  );
+}
+```
+
+Or use `getAuthConfig()` for full configuration access:
+
+```tsx
+import { getAuthConfig } from "ktp-login-react";
+
+function Navigation() {
+  const config = getAuthConfig();
+  const { login, signup, resetPassword } = config.auth.routes;
+
+  return (
+    <nav>
+      <a href={login}>Login</a>
+      <a href={signup}>Sign Up</a>
+      <a href={resetPassword}>Forgot Password?</a>
+    </nav>
+  );
+}
+```
+
+**Why this matters:** If you hardcode `/login` but the library is configured with `/p/login`, your links will break. Always read from the config.
+
+### Accessing User Info
+
+```tsx
+import { useAuth } from "ktp-login-react";
+
+function Dashboard() {
+  const { user, firebaseUser, isLoading, logout } = useAuth();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (!user) return <div>Not authenticated</div>;
+
+  return (
+    <div>
+      <h1>Welcome {user.nameFirst}</h1>
+      <p>Email: {user.email}</p>
+      <button onClick={logout}>Logout</button>
+    </div>
+  );
+}
+```
+
+### Custom Login Page
+
+```tsx
+import { LoginPage } from "ktp-login-react";
+
+function CustomLoginRoute() {
+  return <LoginPage redirectTo="/custom-destination" />;
+}
+```
+
+### Protected Route Wrapper
+
+```tsx
+import { ProtectedRoute } from "ktp-login-react";
+
+// As layout route (recommended)
+<Route element={<ProtectedRoute />}>
+  <Route path="/dashboard" element={<Dashboard />} />
+  <Route path="/profile" element={<Profile />} />
+</Route>
+
+// Or with children
+<ProtectedRoute>
+  <YourProtectedComponent />
+</ProtectedRoute>
+```
+
+### Direct Firebase Auth
+
+```tsx
+import { signInWithGoogle, signUpWithEmail } from "ktp-login-react";
+
+// OAuth sign-in
+await signInWithGoogle();
+
+// Email/password signup
+await signUpWithEmail("user@example.com", "password123");
+```
+
+## Important Notes
+
+1. **Initialization Required**: Must call `initializeAuthLibrary()` before rendering any components
+2. **AuthProvider Required**: Must wrap app with `<AuthProvider>` for useAuth hook to work
+3. **Backend Integration**: Requires backend endpoints at configured paths (default: /auth/login and /auth/logout)
+4. **React Router**: Uses react-router-dom for navigation
+5. **CSS Import**: Must import "ktp-login-react/styles.css" for styled components
+6. **Provider Gating**: Only providers listed in enabledProviders will show login buttons
+
+## Auth Flow
+
+1. User signs in with Firebase (OAuth or email/password)
+2. Library obtains Firebase ID token
+3. Library POSTs token to backend `/auth/login` endpoint
+4. Backend validates token and returns user object
+5. User object stored in AuthContext
+6. On logout, calls both Firebase signOut and backend `/auth/logout`
+
+## TypeScript Support
+
+Fully typed with TypeScript declarations included. All exports have proper type definitions.
+
+## Compatible Backend
+
+Designed to work with ktp-gcp-auth library from the ktor-plus project (Ktor backend).
+Repository: https://github.com/lukelast/ktor-plus
