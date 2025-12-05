@@ -2,9 +2,11 @@ import type { User as FirebaseUser } from "firebase/auth";
 
 export interface User {
   userId: string;
-  nameFull: string;
   email: string;
+  nameFull: string;
   nameFirst: string;
+  roles: string[];
+  extra: unknown;
 }
 
 export interface AuthContextType {
