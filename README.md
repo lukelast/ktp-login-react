@@ -253,10 +253,11 @@ Returns:
 ```typescript
 interface User {
   userId: string;
-  nameFull: string;
   email: string;
+  nameFull: string;
   nameFirst: string;
-  subscription?: string;
+  roles: string[];
+  extra: unknown;
 }
 ```
 
@@ -288,28 +289,6 @@ The library expects your backend to have two endpoints:
 ### POST `/auth/login`
 
 Called after Firebase authentication to sync with your backend.
-
-Request:
-
-```json
-{
-  "idToken": "firebase-id-token"
-}
-```
-
-Response:
-
-```json
-{
-  "user": {
-    "userId": "123",
-    "nameFull": "John Doe",
-    "email": "john@example.com",
-    "nameFirst": "John",
-    "subscription": "pro"
-  }
-}
-```
 
 ### POST `/auth/logout`
 
