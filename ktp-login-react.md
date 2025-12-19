@@ -24,15 +24,8 @@ initializeAuthLibrary({
     projectId: "your-project-id",
   },
   auth: {
-    enabledProviders: ["google.com", "github.com", "password"],
-    endpoints: {
-      login: "/api/auth/login",
-      logout: "/api/auth/logout",
-    },
+    enabledProviders: (import.meta.env.VITE_AUTH_PROVIDERS || "").split(","),
     routes: {
-      login: "/login",
-      signup: "/signup",
-      resetPassword: "/reset-password",
       afterLogin: "/dashboard",
     },
   },
@@ -178,24 +171,7 @@ interface AuthLibraryConfig {
 - `auth.routes.signInWithPassword` → defaults to `/p/login-password`
 - `auth.routes.verifyEmail` → defaults to `/p/verify-email`
 - `auth.routes.anonymousLogin` → defaults to `/p/anonymous-login`
-- `auth.password.minLength` → defaults to `6`
-
-**Minimal configuration example:**
-
-```tsx
-initializeAuthLibrary({
-  firebase: {
-    apiKey: "your-api-key",
-    projectId: "your-project-id",
-  },
-  auth: {
-    enabledProviders: ["google.com", "password"],
-    routes: {
-      afterLogin: "/dashboard",
-    },
-  },
-});
-```
+- `auth.password.minLength` → defaults to `8`
 
 ### Provider IDs
 
@@ -252,8 +228,7 @@ Response:
     "userId": "123",
     "nameFull": "John Doe",
     "email": "john@example.com",
-    "nameFirst": "John",
-    "subscription": "pro"
+    "nameFirst": "John"
   }
 }
 ```
@@ -263,27 +238,6 @@ Response:
 Called when user logs out. No request body required.
 
 ## Common Usage Patterns
-
-### Using Pre-built Pages
-
-```tsx
-import { AuthRoutes, ProtectedRoute } from "ktp-login-react";
-import { Routes, Route } from "react-router-dom";
-
-function App() {
-  return (
-    <Routes>
-      {/* Auth pages at /login, /signup, /reset-password, etc. */}
-      <Route path="/*" element={<AuthRoutes />} />
-
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Route>
-    </Routes>
-  );
-}
-```
 
 ### Reading Library Config for Links
 
