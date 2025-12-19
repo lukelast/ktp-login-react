@@ -20,6 +20,7 @@ export { ProtectedRoute } from "./lib/auth/ProtectedRoute";
 export { LoginPage } from "./lib/components/LoginPage";
 export { SignupPage } from "./lib/components/SignupPage";
 export { PasswordResetPage } from "./lib/components/PasswordResetPage";
+export { EmailSignInPage } from "./lib/components/EmailSignInPage";
 export { PasswordSignInPage } from "./lib/components/PasswordSignInPage";
 export { EmailVerificationPage } from "./lib/components/EmailVerificationPage";
 export { AnonymousLoginPage } from "./lib/components/AnonymousLoginPage";

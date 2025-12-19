@@ -81,10 +81,11 @@ function YourRoutes() {
 ### Components
 
 - `AuthProvider` - Context provider for auth state (wraps app)
-- `LoginPage` - Pre-built login page with OAuth and email/password
+- `LoginPage` - Pre-built login page with OAuth and email options
 - `SignupPage` - Email/password signup page
 - `PasswordResetPage` - Password reset request page
 - `PasswordSignInPage` - Email/password sign-in page
+- `EmailSignInPage` - Email link (passwordless) sign-in page
 - `EmailVerificationPage` - Email verification page
 - `AnonymousLoginPage` - Anonymous sign-in page for temporary accounts
 - `ProtectedRoute` - Route guard requiring authentication
@@ -185,7 +186,7 @@ Valid values for `enabledProviders` array:
 ## useAuth Hook
 
 ```typescript
-const { user, firebaseUser, isLoading, logout } = useAuth();
+const { user, firebaseUser, isLoading, logout, refreshUser } = useAuth();
 ```
 
 Returns:
@@ -193,16 +194,18 @@ Returns:
 - `firebaseUser: FirebaseUser | null` - Firebase user object
 - `isLoading: boolean` - Loading state
 - `logout: () => Promise<void>` - Logout function
+- `refreshUser: () => Promise<FirebaseUser | null>` - Force refresh user state
 
 ## User Type
 
 ```typescript
 interface User {
   userId: string;
-  nameFull: string;
   email: string;
+  nameFull: string;
   nameFirst: string;
-  subscription?: string;
+  roles: string[];
+  extra: any;
 }
 ```
 
