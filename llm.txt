@@ -21,7 +21,6 @@ import { initializeAuthLibrary } from "ktp-login-react";
 initializeAuthLibrary({
   firebase: {
     apiKey: "your-api-key",
-    authDomain: "your-project.firebaseapp.com",
     projectId: "your-project-id",
   },
   auth: {
@@ -35,10 +34,6 @@ initializeAuthLibrary({
       signup: "/signup",
       resetPassword: "/reset-password",
       afterLogin: "/dashboard",
-      afterSignup: "/",
-    },
-    password: {
-      minLength: 8,
     },
   },
 });
@@ -98,6 +93,7 @@ function YourRoutes() {
 - `PasswordResetPage` - Password reset request page
 - `PasswordSignInPage` - Email/password sign-in page
 - `EmailVerificationPage` - Email verification page
+- `AnonymousLoginPage` - Anonymous sign-in page for temporary accounts
 - `ProtectedRoute` - Route guard requiring authentication
 - `AuthRoutes` - Component that renders all auth pages based on config
 
@@ -120,6 +116,7 @@ function YourRoutes() {
 - `signInWithFacebook()` - Facebook OAuth sign-in
 - `signInWithEmail(email, password)` - Email/password sign-in
 - `signUpWithEmail(email, password)` - Email/password signup
+- `signInAnonymousUser()` - Anonymous sign-in (temporary account)
 - `resetPassword(email)` - Send password reset email
 - `signOutUser()` - Sign out current user
 - `subscribeToAuthState(callback)` - Subscribe to auth state changes
@@ -150,11 +147,11 @@ interface AuthLibraryConfig {
       signInWithEmail?: string; // Default: "/p/login-email"
       signInWithPassword?: string; // Default: "/p/login-password"
       verifyEmail?: string; // Default: "/p/verify-email"
+      anonymousLogin?: string; // Default: "/p/anonymous-login"
       afterLogin: string; // Required: where to redirect after login
-      afterSignup: string; // Required: where to redirect after signup
     };
     password?: {
-      minLength?: number; // Default: 6
+      minLength?: number; // Default: 8
     };
   };
 }
@@ -169,7 +166,6 @@ interface AuthLibraryConfig {
 - `firebase.projectId`
 - `auth.enabledProviders`
 - `auth.routes.afterLogin`
-- `auth.routes.afterSignup`
 
 **Optional fields with defaults:**
 - `firebase.authDomain` → defaults to `{projectId}.firebaseapp.com`
@@ -181,6 +177,7 @@ interface AuthLibraryConfig {
 - `auth.routes.signInWithEmail` → defaults to `/p/login-email`
 - `auth.routes.signInWithPassword` → defaults to `/p/login-password`
 - `auth.routes.verifyEmail` → defaults to `/p/verify-email`
+- `auth.routes.anonymousLogin` → defaults to `/p/anonymous-login`
 - `auth.password.minLength` → defaults to `6`
 
 **Minimal configuration example:**
@@ -195,7 +192,6 @@ initializeAuthLibrary({
     enabledProviders: ["google.com", "password"],
     routes: {
       afterLogin: "/dashboard",
-      afterSignup: "/",
     },
   },
 });
@@ -391,6 +387,72 @@ await signInWithGoogle();
 
 // Email/password signup
 await signUpWithEmail("user@example.com", "password123");
+```
+
+### Anonymous Login
+
+Anonymous login allows users to access your app without creating an account. This is useful for trial experiences, guest access, or deferred registration. **Note:** Anonymous accounts are temporary and cannot be recovered once signed out.
+
+**Using the pre-built page:**
+
+The `AnonymousLoginPage` is automatically included in `AuthRoutes` at the configured route (default: `/p/anonymous-login`).
+
+```tsx
+import { getAuthRoutes } from "ktp-login-react";
+import { Link } from "react-router-dom";
+
+function LoginOptions() {
+  const routes = getAuthRoutes();
+  
+  return (
+    <div>
+      <Link to={routes.login}>Sign In</Link>
+      <Link to={routes.anonymousLogin}>Continue as Guest</Link>
+    </div>
+  );
+}
+```
+
+**Using the component directly:**
+
+```tsx
+import { AnonymousLoginPage } from "ktp-login-react";
+
+// In your routes
+<Route path="/guest-login" element={<AnonymousLoginPage />} />
+```
+
+**Using the Firebase utility directly:**
+
+```tsx
+import { signInAnonymousUser } from "ktp-login-react";
+
+async function handleGuestLogin() {
+  try {
+    const user = await signInAnonymousUser();
+    console.log("Signed in anonymously:", user.uid);
+  } catch (error) {
+    console.error("Anonymous login failed:", error);
+  }
+}
+```
+
+**Detecting anonymous users:**
+
+Anonymous users can be identified via the `firebaseUser.isAnonymous` property:
+
+```tsx
+import { useAuth } from "ktp-login-react";
+
+function UserStatus() {
+  const { user, firebaseUser } = useAuth();
+  
+  if (firebaseUser?.isAnonymous) {
+    return <p>Logged in as Guest. <Link to="/signup">Create an account</Link></p>;
+  }
+  
+  return <p>Welcome, {user?.nameFirst}!</p>;
+}
 ```
 
 ## Important Notes

@@ -36,6 +36,7 @@ export {
   signInWithFacebook,
   signInWithEmail,
   signUpWithEmail,
+  signInAnonymousUser,
   resetPassword,
   signOutUser,
   subscribeToAuthState,
