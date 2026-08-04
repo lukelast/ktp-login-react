@@ -27,7 +27,7 @@
     "lint:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:biome": "biome lint src demo",
     "format": "biome format src demo --write",
-    "format:check": "biome format src demo --check",
+    "format:check": "biome format src demo",
     "preview": "vite preview",
     "test": "vitest",
     "prepublishOnly": "npm run build"

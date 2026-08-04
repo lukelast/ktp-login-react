@@ -1,11 +1,20 @@
 import type React from "react";
+import { useState } from "react";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { ProtectedRoute, useAuth, getAuthConfig, AuthRoutes } from "../src";
 
 import "./demoStyles.css";
 
 const Dashboard: React.FC = () => {
-  const { user, firebaseUser, logout } = useAuth();
+  const { user, firebaseUser, logout, isLoggingOut } = useAuth();
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    setLogoutError(null);
+    logout().catch((error: unknown) => {
+      setLogoutError(error instanceof Error ? error.message : "Logout failed");
+    });
+  };
 
   return (
     <div className="ktp-demo-page">
@@ -14,9 +23,19 @@ const Dashboard: React.FC = () => {
           <h1 className="ktp-demo-title">Dashboard</h1>
           {user ? (
             <div className="ktp-space-y-4">
-              <button type="button" onClick={logout} className="ktp-btn-danger">
-                Log Out
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="ktp-btn-danger"
+              >
+                {isLoggingOut ? "Logging Out…" : "Log Out"}
               </button>
+              {logoutError && (
+                <div className="ktp-error">
+                  <p className="ktp-error-text">{logoutError}</p>
+                </div>
+              )}
               <p className="ktp-text-lg">
                 Welcome, <strong>{user.nameFirst || user.email || "Anonymous User"}</strong>!
               </p>

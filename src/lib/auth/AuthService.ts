@@ -1,42 +1,41 @@
 import { getAuthConfig } from "../config";
 import type { User } from "./types";
 
-export const AuthService = {
-  login: async (idToken: string): Promise<User | null> => {
-    try {
-      const config = getAuthConfig();
-      const loginRes = await fetch(config.auth.endpoints.login, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ idToken }),
-      });
+/** Bounds each auth request so a hung network call fails fast instead of stalling the UI. */
+const REQUEST_TIMEOUT_MS = 10_000;
 
-      if (loginRes.ok) {
-        const loginData = await loginRes.json();
-        if (loginData.user) {
-          return loginData.user;
-        } else {
-          console.error("Login succeeded but no user data returned");
-          return null;
-        }
-      } else {
-        console.error("Backend login failed");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error logging in:", error);
-      return null;
+export const AuthService = {
+  login: async (idToken: string): Promise<User> => {
+    const config = getAuthConfig();
+    const response = await fetch(config.auth.endpoints.login, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ idToken }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+    if (!response.ok) {
+      throw new Error(`Backend login failed with status ${response.status}`);
     }
+    const data: { user?: User } = await response.json();
+    if (!data.user) {
+      throw new Error("Backend login returned no user data");
+    }
+    return data.user;
   },
 
   logout: async (): Promise<void> => {
-    try {
-      const config = getAuthConfig();
-      await fetch(config.auth.endpoints.logout, { method: "POST" });
-    } catch (error) {
-      console.error("Error logging out:", error);
+    const config = getAuthConfig();
+    const response = await fetch(config.auth.endpoints.logout, {
+      method: "POST",
+      // Let the request finish even if the tab closes right after the click; the
+      // session cookie must not outlive a sign-out the user believes happened.
+      keepalive: true,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+    if (!response.ok) {
+      throw new Error(`Logout failed with status ${response.status}`);
     }
   },
 };
