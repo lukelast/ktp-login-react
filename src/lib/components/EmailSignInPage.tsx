@@ -12,35 +12,38 @@ export const EmailSignInPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // Opening the page via a sign-in link goes straight into completing that
+  // sign-in, so it starts out loading.
+  const [isLoading, setIsLoading] = useState(() =>
+    isAuthSignInWithEmailLink(window.location.href),
+  );
   const config = getAuthConfig();
 
   useEffect(() => {
-    if (isAuthSignInWithEmailLink(window.location.href)) {
+    if (!isAuthSignInWithEmailLink(window.location.href)) {
+      return;
+    }
+
+    const completeLinkSignIn = async () => {
       let emailForSignIn = window.localStorage.getItem("emailForSignIn");
       if (!emailForSignIn) {
         emailForSignIn = window.prompt("Please provide your email for confirmation");
       }
-
-      if (emailForSignIn) {
-        setIsLoading(true);
-        signInWithAuthEmailLink(emailForSignIn, window.location.href)
-          .then(() => {
-            window.localStorage.removeItem("emailForSignIn");
-            // You can access the new user via result.user
-            // Additional user info profile not available via:
-            // result.additionalUserInfo.profile == null
-            // You can check if the user is new or existing:
-            // result.additionalUserInfo.isNewUser
-            window.location.href = config.auth.routes.afterLogin;
-          })
-          .catch((error) => {
-            console.error("Error signing in with email link", error);
-            setError(error.message);
-            setIsLoading(false);
-          });
+      if (!emailForSignIn) {
+        // Prompt dismissed; fall through to the form to request a fresh link.
+        return;
       }
-    }
+      await signInWithAuthEmailLink(emailForSignIn, window.location.href);
+      window.localStorage.removeItem("emailForSignIn");
+      window.location.href = config.auth.routes.afterLogin;
+    };
+
+    completeLinkSignIn()
+      .catch((error: unknown) => {
+        console.error("Error signing in with email link", error);
+        setError(error instanceof Error ? error.message : "Error signing in with email link");
+      })
+      .finally(() => setIsLoading(false));
   }, [config.auth.routes.afterLogin]);
 
   const handleSendLink = async (e: React.FormEvent) => {
