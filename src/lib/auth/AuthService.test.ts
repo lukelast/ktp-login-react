@@ -42,10 +42,24 @@ describe("AuthService.login", () => {
     );
   });
 
-  it("rejects on an error status", async () => {
+  it("rejects a server error with the status attached, not flagged as an auth rejection", async () => {
     fetchMock.mockResolvedValue(new Response("{}", { status: 500 }));
 
-    await expect(AuthService.login("id-token")).rejects.toThrow("500");
+    await expect(AuthService.login("id-token")).rejects.toMatchObject({
+      name: "AuthBackendError",
+      status: 500,
+      isAuthRejection: false,
+    });
+  });
+
+  it("flags a credential refusal as an auth rejection", async () => {
+    fetchMock.mockResolvedValue(new Response("{}", { status: 401 }));
+
+    await expect(AuthService.login("id-token")).rejects.toMatchObject({
+      name: "AuthBackendError",
+      status: 401,
+      isAuthRejection: true,
+    });
   });
 
   it("rejects when the response carries no user", async () => {

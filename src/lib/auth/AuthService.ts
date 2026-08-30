@@ -4,6 +4,27 @@ import type { User } from "./types";
 /** Bounds each auth request so a hung network call fails fast instead of stalling the UI. */
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/**
+ * A `/auth/login` exchange the backend answered with an error status. Carries the status so
+ * callers can tell a credential rejection (the backend refused this user) from a broken backend
+ * (a 500), which are very different situations: the first means "signed out", the second means
+ * "unknown".
+ */
+export class AuthBackendError extends Error {
+  readonly status: number;
+
+  constructor(status: number) {
+    super(`Backend login failed with status ${status}`);
+    this.name = "AuthBackendError";
+    this.status = status;
+  }
+
+  /** True when the backend understood the request and refused the credentials. */
+  get isAuthRejection(): boolean {
+    return this.status === 401 || this.status === 403;
+  }
+}
+
 export const AuthService = {
   login: async (idToken: string): Promise<User> => {
     const config = getAuthConfig();
@@ -16,7 +37,7 @@ export const AuthService = {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
     if (!response.ok) {
-      throw new Error(`Backend login failed with status ${response.status}`);
+      throw new AuthBackendError(response.status);
     }
     const data: { user?: User } = await response.json();
     if (!data.user) {

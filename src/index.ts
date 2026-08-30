@@ -10,6 +10,7 @@ export type { AuthLibraryConfig } from "./lib/config/types";
 
 // Auth types
 export type { User, AuthContextType } from "./lib/auth/types";
+export { AuthBackendError } from "./lib/auth/AuthService";
 
 // Auth hooks and components
 export { useAuth } from "./lib/auth/useAuth";

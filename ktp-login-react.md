@@ -186,15 +186,24 @@ Valid values for `enabledProviders` array:
 ## useAuth Hook
 
 ```typescript
-const { user, firebaseUser, isLoading, logout, refreshUser } = useAuth();
+const { user, firebaseUser, syncError, isLoading, logout, refreshUser } = useAuth();
 ```
 
 Returns:
 - `user: User | null` - Backend user object
 - `firebaseUser: FirebaseUser | null` - Firebase user object
+- `syncError: string | null` - Presentable message when the backend session exchange failed for
+  a non-auth reason (500, unreachable server, timeout). Null when signed out normally or after a
+  credential rejection — those are just `user: null`. While set, `ProtectedRoute` shows an error
+  screen with a retry button instead of the login page.
 - `isLoading: boolean` - Loading state
 - `logout: () => Promise<void>` - Logout function
-- `refreshUser: () => Promise<FirebaseUser | null>` - Force refresh user state
+- `refreshUser: () => Promise<FirebaseUser | null>` - Force refresh user state (also the retry
+  path for `syncError`)
+
+The `AuthBackendError` class (exported) is what `AuthService.login` throws for an error status;
+its `status` and `isAuthRejection` fields are how the provider tells a 401/403 from a broken
+backend.
 
 ## User Type
 

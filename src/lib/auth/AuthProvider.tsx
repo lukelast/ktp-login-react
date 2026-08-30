@@ -2,14 +2,28 @@ import type React from "react";
 import { type ReactNode, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import type { User as FirebaseUser } from "firebase/auth";
 import { subscribeToAuthState, signOutUser, reloadCurrentUser } from "../firebase/firebase";
-import { AuthService } from "./AuthService";
+import { AuthService, AuthBackendError } from "./AuthService";
 import type { User } from "./types";
 import { AuthContext } from "./AuthContext";
 import { needsEmailValidation } from "./util";
 
+/**
+ * Maps a failed session exchange to a presentable message, or null for a credential rejection:
+ * being refused by the backend means "signed out", not "something is broken".
+ */
+const syncFailureMessage = (error: unknown): string | null => {
+  if (error instanceof AuthBackendError) {
+    return error.isAuthRejection
+      ? null
+      : `The server failed to sign you in (HTTP ${error.status}).`;
+  }
+  return "The server could not be reached to sign you in.";
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const logoutInFlight = useRef<Promise<void> | null>(null);
@@ -18,14 +32,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     async (firebaseUser: FirebaseUser | null, forceRefresh = false) => {
       if (!firebaseUser) {
         setUser(null);
+        setSyncError(null);
         return;
       }
 
       try {
         const idToken = await firebaseUser.getIdToken(forceRefresh);
         setUser(await AuthService.login(idToken));
+        setSyncError(null);
       } catch (error) {
         setUser(null);
+        setSyncError(syncFailureMessage(error));
         throw error;
       }
     },
@@ -40,7 +57,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         if (needsEmailValidation(firebaseUser)) {
           setUser(null);
-        } else if (firebaseUser) {
+          setSyncError(null);
+        } else {
+          // A null firebaseUser clears the backend user too — a sign-out is a sign-out.
           await syncWithBackend(firebaseUser);
         }
       } catch (error) {
@@ -62,7 +81,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (needsEmailValidation(refreshedUser)) {
         setUser(null);
-      } else if (refreshedUser) {
+        setSyncError(null);
+      } else {
         await syncWithBackend(refreshedUser, true);
       }
 
@@ -87,6 +107,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await signOutUser();
       setUser(null);
       setFirebaseUser(null);
+      setSyncError(null);
     };
 
     setIsLoggingOut(true);
@@ -102,12 +123,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     () => ({
       user,
       firebaseUser,
+      syncError,
       isLoading,
       isLoggingOut,
       logout,
       refreshUser,
     }),
-    [user, firebaseUser, isLoading, isLoggingOut, logout, refreshUser],
+    [user, firebaseUser, syncError, isLoading, isLoggingOut, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
