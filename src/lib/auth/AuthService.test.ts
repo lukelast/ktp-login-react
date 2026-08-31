@@ -13,15 +13,27 @@ const testUser = {
   extra: null,
 };
 
-beforeAll(() => {
+beforeAll(async () => {
   vi.stubGlobal("fetch", fetchMock);
-  initializeAuthLibrary({
-    firebase: { apiKey: "test-key", projectId: "test-project" },
+  fetchMock.mockResolvedValueOnce(
+    new Response(
+      JSON.stringify({
+        firebase: {
+          apiKey: "test-key",
+          projectId: "test-project",
+          authDomain: "test-project.firebaseapp.com",
+        },
+        enabledProviders: [],
+      }),
+      { status: 200 },
+    ),
+  );
+  await initializeAuthLibrary({
     auth: {
-      enabledProviders: [],
       routes: { afterLogin: "/dashboard" },
     },
   });
+  fetchMock.mockReset();
 });
 
 afterEach(() => {

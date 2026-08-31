@@ -166,7 +166,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </button>
             )}
 
-            {enabledProviders.includes(EmailAuthProvider.PROVIDER_ID) && (
+            {/* "emailLink" is sent when Identity Platform's "Allow passwordless login" is on. */}
+            {enabledProviders.includes(EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD) && (
               <button
                 type="button"
                 onClick={() => navigate(config.auth.routes.signInWithEmail)}

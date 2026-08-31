@@ -2,11 +2,18 @@ import "./styles.css";
 
 // Configuration
 export {
+  AUTH_URLS,
+  AuthClientConfigError,
   initializeAuthLibrary,
   getAuthConfig,
   isAuthLibraryInitialized,
 } from "./lib/config";
-export type { AuthLibraryConfig } from "./lib/config/types";
+export type {
+  AuthClientConfig,
+  AuthLibraryConfig,
+  FirebaseClientConfig,
+  ResolvedAuthLibraryConfig,
+} from "./lib/config/types";
 
 // Auth types
 export type { User, AuthContextType } from "./lib/auth/types";

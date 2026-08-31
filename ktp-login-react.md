@@ -13,18 +13,14 @@ npm install react react-dom firebase react-router-dom
 
 ### 1. Initialize Library
 
-Call `initializeAuthLibrary()` before rendering any components (typically in main.tsx):
+Await `initializeAuthLibrary()` before rendering any components (typically in main.tsx). It loads
+Firebase settings and enabled providers from ktp-gcp-auth:
 
 ```tsx
 import { initializeAuthLibrary } from "ktp-login-react";
 
-initializeAuthLibrary({
-  firebase: {
-    apiKey: "your-api-key",
-    projectId: "your-project-id",
-  },
+await initializeAuthLibrary({
   auth: {
-    enabledProviders: (import.meta.env.VITE_AUTH_PROVIDERS || "").split(","),
     routes: {
       afterLogin: "/dashboard",
     },
@@ -97,7 +93,7 @@ function YourRoutes() {
 
 ### Functions
 
-- `initializeAuthLibrary(config)` - Initialize with config (must be called first)
+- `initializeAuthLibrary(config)` - Load runtime config and initialize (must be awaited first)
 - `getAuthConfig()` - Get current config
 - `isAuthLibraryInitialized()` - Check if initialized
 - `getAuthRoutes()` - Get route configuration for auth pages
@@ -122,18 +118,7 @@ function YourRoutes() {
 
 ```typescript
 interface AuthLibraryConfig {
-  firebase: {
-    apiKey: string;
-    authDomain?: string; // Defaults to {projectId}.firebaseapp.com
-    projectId: string;
-  };
-
   auth: {
-    enabledProviders: string[]; // Provider IDs to enable
-    endpoints?: {
-      login?: string; // Default: "/auth/login"
-      logout?: string; // Default: "/auth/logout"
-    };
     routes: {
       login?: string; // Default: "/p/login"
       signup?: string; // Default: "/p/signup"
@@ -153,18 +138,13 @@ interface AuthLibraryConfig {
 
 ### Configuration Defaults
 
-**Many values are optional and have sensible defaults.** You only need to provide:
+The backend owns the Firebase config, enabled providers, and login/logout paths. The React client
+only owns its UI routes and password validation setting.
 
 **Required fields:**
-- `firebase.apiKey`
-- `firebase.projectId`
-- `auth.enabledProviders`
 - `auth.routes.afterLogin`
 
 **Optional fields with defaults:**
-- `firebase.authDomain` → defaults to `{projectId}.firebaseapp.com`
-- `auth.endpoints.login` → defaults to `/auth/login`
-- `auth.endpoints.logout` → defaults to `/auth/logout`
 - `auth.routes.login` → defaults to `/p/login`
 - `auth.routes.signup` → defaults to `/p/signup`
 - `auth.routes.resetPassword` → defaults to `/p/reset-password`
@@ -176,12 +156,15 @@ interface AuthLibraryConfig {
 
 ### Provider IDs
 
-Valid values for `enabledProviders` array:
+ktp-gcp-auth discovers the configured providers from GCP. The React library recognizes these
+provider IDs in the runtime response:
 - `"google.com"` - Google OAuth
 - `"github.com"` - GitHub OAuth
 - `"microsoft.com"` - Microsoft OAuth
 - `"facebook.com"` - Facebook OAuth
 - `"password"` - Email/password authentication
+- `"emailLink"` - Passwordless email-link sign-in (Identity Platform's "Allow passwordless login"
+  toggle); shows the "Send Email login link" button
 
 ## useAuth Hook
 
@@ -220,7 +203,26 @@ interface User {
 
 ## Backend Requirements
 
-This library expects a backend with two endpoints:
+This library expects a ktp-gcp-auth backend with three endpoints at fixed, conventional paths
+(exported as `AUTH_URLS`): `GET /auth/config`, `POST /auth/login`, `POST /auth/logout`.
+
+### GET /auth/config
+
+Loaded once during initialization. Its response has this shape:
+
+```json
+{
+  "firebase": {
+    "apiKey": "public-firebase-api-key",
+    "projectId": "project-id",
+    "authDomain": "project-id.firebaseapp.com"
+  },
+  "enabledProviders": ["google.com", "password"]
+}
+```
+
+Failed or invalid responses reject with `AuthClientConfigError` and may be retried by calling
+initialization again.
 
 ### POST /auth/login
 
@@ -423,21 +425,22 @@ function UserStatus() {
 
 ## Important Notes
 
-1. **Initialization Required**: Must call `initializeAuthLibrary()` before rendering any components
+1. **Initialization Required**: Must await `initializeAuthLibrary()` before rendering any components
 2. **AuthProvider Required**: Must wrap app with `<AuthProvider>` for useAuth hook to work
-3. **Backend Integration**: Requires backend endpoints at configured paths (default: /auth/login and /auth/logout)
+3. **Backend Integration**: Requires the ktp-gcp-auth runtime config, login, and logout endpoints
 4. **React Router**: Uses react-router-dom for navigation
 5. **CSS Import**: Must import "ktp-login-react/styles.css" for styled components
 6. **Provider Gating**: Only providers listed in enabledProviders will show login buttons
 
 ## Auth Flow
 
-1. User signs in with Firebase (OAuth or email/password)
-2. Library obtains Firebase ID token
-3. Library POSTs token to backend `/auth/login` endpoint
-4. Backend validates token and returns user object
-5. User object stored in AuthContext
-6. On logout, calls both Firebase signOut and backend `/auth/logout`
+1. Application initialization loads public auth configuration from the backend
+2. User signs in with Firebase (OAuth or email/password)
+3. Library obtains Firebase ID token
+4. Library POSTs the token to the fixed backend login endpoint (/auth/login)
+5. Backend validates the token and returns a user object
+6. User object is stored in AuthContext
+7. On logout, the library calls both Firebase signOut and the fixed backend logout endpoint (/auth/logout)
 
 ## TypeScript Support
 

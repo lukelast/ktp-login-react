@@ -14,9 +14,7 @@ export const EmailSignInPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   // Opening the page via a sign-in link goes straight into completing that
   // sign-in, so it starts out loading.
-  const [isLoading, setIsLoading] = useState(() =>
-    isAuthSignInWithEmailLink(window.location.href),
-  );
+  const [isLoading, setIsLoading] = useState(() => isAuthSignInWithEmailLink(window.location.href));
   const config = getAuthConfig();
 
   useEffect(() => {

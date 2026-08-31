@@ -1,21 +1,21 @@
 import type { FirebaseOptions } from "firebase/app";
 
+/** Public Firebase configuration returned by ktp-gcp-auth. */
+export type FirebaseClientConfig = Required<
+  Pick<FirebaseOptions, "apiKey" | "projectId" | "authDomain">
+>;
+
+/** Runtime response served by FirebaseAuthPlugin at GET /auth/config. */
+export interface AuthClientConfig {
+  firebase: FirebaseClientConfig;
+  enabledProviders: string[];
+}
+
 /**
  * See `DEFAULTS` in `./index.ts` for defaults.
  */
 export interface AuthLibraryConfig {
-  firebase: Omit<FirebaseOptions, "authDomain"> & {
-    authDomain?: string;
-  };
-
   auth: {
-    enabledProviders: string[];
-
-    endpoints?: {
-      login?: string;
-      logout?: string;
-    };
-
     routes: {
       login?: string;
       signup?: string;
@@ -35,15 +35,10 @@ export interface AuthLibraryConfig {
 
 // Internal resolved config with all defaults applied
 export interface ResolvedAuthLibraryConfig {
-  firebase: FirebaseOptions;
+  firebase: FirebaseClientConfig;
 
   auth: {
     enabledProviders: string[];
-
-    endpoints: {
-      login: string;
-      logout: string;
-    };
 
     routes: {
       login: string;

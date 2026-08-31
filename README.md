@@ -32,30 +32,15 @@ npm install react react-dom firebase react-router-dom
 
 ### 1. Initialize the Library
 
-Before using any components, initialize the library with your configuration:
+Before rendering any components, await initialization. Firebase settings and enabled providers are
+loaded from the ktp-gcp-auth backend at `GET /auth/config`:
 
 ```tsx
 // src/main.tsx or src/index.tsx
 import { initializeAuthLibrary } from "ktp-login-react";
 
-initializeAuthLibrary({
-  firebase: {
-    apiKey: "your-api-key",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-  },
+await initializeAuthLibrary({
   auth: {
-    enabledProviders: [
-      "google.com",
-      "github.com",
-      "microsoft.com",
-      "facebook.com",
-      "password", // Email/password auth
-    ],
-    endpoints: {
-      login: "/api/auth/login",
-      logout: "/api/auth/logout",
-    },
     routes: {
       login: "/login",
       signup: "/signup",
@@ -144,22 +129,19 @@ function Dashboard() {
 
 ```typescript
 interface AuthLibraryConfig {
-  firebase: FirebaseOptions; // Firebase configuration object
-
   auth: {
-    enabledProviders: string[]; // Array of provider IDs to enable
-    endpoints: {
-      login: string; // Backend endpoint to sync Firebase auth
-      logout: string; // Backend endpoint for logout
-    };
     routes: {
-      login: string; // Login page route
-      signup: string; // Signup page route
-      resetPassword: string; // Password reset page route
-      afterLogin: string; // Redirect after successful login
+      login?: string; // Default: "/p/login"
+      signup?: string; // Default: "/p/signup"
+      resetPassword?: string; // Default: "/p/reset-password"
+      signInWithEmail?: string; // Default: "/p/login-email"
+      signInWithPassword?: string; // Default: "/p/login-password"
+      verifyEmail?: string; // Default: "/p/verify-email"
+      anonymousLogin?: string; // Default: "/p/anonymous-login"
+      afterLogin: string; // Required redirect after successful login
     };
     password?: {
-      minLength?: number; // Minimum password length (default: 6)
+      minLength?: number; // Default: 8
     };
   };
 }
@@ -167,13 +149,16 @@ interface AuthLibraryConfig {
 
 ### Provider IDs
 
-Use these strings in the `enabledProviders` array:
+The backend discovers enabled Firebase providers and returns their provider IDs. The library
+currently recognizes:
 
 - `"google.com"` - Google OAuth
 - `"github.com"` - GitHub OAuth
 - `"microsoft.com"` - Microsoft OAuth
 - `"facebook.com"` - Facebook OAuth
 - `"password"` - Email/password authentication
+- `"emailLink"` - Passwordless email-link sign-in (Identity Platform's "Allow passwordless login"
+  toggle); shows the "Send Email login link" button
 
 ### Exported Components
 
@@ -284,7 +269,16 @@ import {
 
 This library is designed to work with the [ktp-gcp-auth](https://github.com/lukelast/ktor-plus) library from the ktor-plus project, which provides the required backend endpoints for Ktor applications.
 
-The library expects your backend to have two endpoints:
+The library uses three backend endpoints with fixed, conventional paths (`AUTH_URLS`):
+`GET /auth/config`, `POST /auth/login`, and `POST /auth/logout`. ktp-gcp-auth registers the same
+paths, so nothing is configurable on either side.
+
+### GET `/auth/config`
+
+Loaded once by `initializeAuthLibrary()`. It supplies the public Firebase client settings and
+enabled providers. A non-successful or invalid response rejects initialization with
+`AuthClientConfigError`; the application should show an appropriate startup error rather than
+rendering auth components.
 
 ### POST `/auth/login`
 
@@ -298,23 +292,13 @@ Called when user logs out.
 
 To run the demo app locally and test the UI components:
 
-### 1. Set up environment variables
+### 1. Start your backend server
 
-Copy the example file and add your Firebase credentials:
-
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` with your Firebase project credentials:
-
-### 2. Start your backend server
-
-Make sure your backend is running at `http://localhost:8080` with the `/auth/login` and `/auth/logout` endpoints.
+Make sure your backend is running at `http://localhost:8080` with ktp-gcp-auth installed.
 
 **Note:** The Vite dev server is configured to proxy all `/auth` requests to `http://localhost:8080`, so you won't encounter CORS issues during development.
 
-### 3. Start the dev server
+### 2. Start the dev server
 
 ```bash
 npm run dev

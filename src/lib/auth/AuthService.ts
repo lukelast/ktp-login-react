@@ -1,4 +1,4 @@
-import { getAuthConfig } from "../config";
+import { AUTH_URLS } from "../config";
 import type { User } from "./types";
 
 /** Bounds each auth request so a hung network call fails fast instead of stalling the UI. */
@@ -27,8 +27,7 @@ export class AuthBackendError extends Error {
 
 export const AuthService = {
   login: async (idToken: string): Promise<User> => {
-    const config = getAuthConfig();
-    const response = await fetch(config.auth.endpoints.login, {
+    const response = await fetch(AUTH_URLS.login, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,8 +46,7 @@ export const AuthService = {
   },
 
   logout: async (): Promise<void> => {
-    const config = getAuthConfig();
-    const response = await fetch(config.auth.endpoints.logout, {
+    const response = await fetch(AUTH_URLS.logout, {
       method: "POST",
       // Let the request finish even if the tab closes right after the click; the
       // session cookie must not outlive a sign-out the user believes happened.
