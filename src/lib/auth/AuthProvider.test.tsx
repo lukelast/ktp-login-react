@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import type { User as FirebaseUser } from "firebase/auth";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthClientConfigError } from "../config";
@@ -104,7 +104,7 @@ afterEach(() => {
   cleanup();
   fetchMock.mockReset();
   firebase.subscribeToAuthState.mockReset();
-  firebase.signOutUser.mockClear();
+  firebase.signOutUser.mockReset().mockResolvedValue(undefined);
   firebase.reloadCurrentUser.mockClear();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
@@ -244,36 +244,128 @@ describe("AuthProvider session establishment", () => {
 });
 
 describe("AuthProvider logout", () => {
-  it("ends the backend session, then clears Firebase and local state", async () => {
+  it("waits for Firebase before ending the cookie session and coalesces concurrent calls", async () => {
+    const firebaseLogout = Promise.withResolvers<void>();
+    const backendLogout = Promise.withResolvers<Response>();
+    firebase.signOutUser.mockImplementationOnce(() => firebaseLogout.promise);
+    routeFetch({
+      "/auth/session": () => json({ user: sessionUser }),
+      "/auth/logout": () => backendLogout.promise,
+    });
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    await waitFor(() => expect(result.current.user).toEqual(sessionUser));
+
+    let pendingLogout: Promise<void>;
+    act(() => {
+      pendingLogout = result.current.logout();
+      expect(result.current.logout()).toBe(pendingLogout);
+    });
+    await waitFor(() => expect(firebase.signOutUser).toHaveBeenCalledTimes(1));
+    expect(fetchesTo("/auth/logout")).toHaveLength(0);
+    expect(result.current).toMatchObject({ user: sessionUser, isLoggingOut: true });
+
+    await act(async () => firebaseLogout.resolve());
+
+    expect(fetchesTo("/auth/logout")).toHaveLength(1);
+    expect(result.current).toMatchObject({ user: sessionUser, isLoggingOut: true });
+    await act(async () => {
+      backendLogout.resolve(new Response(null, { status: 204 }));
+      await pendingLogout;
+    });
+
+    expect(result.current).toMatchObject({
+      user: null,
+      firebaseUser: null,
+      syncError: null,
+      isLoggingOut: false,
+    });
+    expect(firebase.signOutUser).toHaveBeenCalledTimes(1);
+    expect(firebase.subscribeToAuthState).not.toHaveBeenCalled();
+  });
+
+  it("preserves the cookie session and lets the caller retry when Firebase sign-out fails", async () => {
+    const failure = new Error("Firebase could not load");
+    firebase.signOutUser.mockRejectedValueOnce(failure);
     routeFetch({
       "/auth/session": () => json({ user: sessionUser }),
       "/auth/logout": () => new Response(null, { status: 204 }),
     });
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    await waitFor(() => expect(result.current.user).toEqual(sessionUser));
 
-    renderProvider();
-    await waitFor(() => expect(state().user).toBe("user-1"));
-
-    act(() => screen.getByText("logout").click());
-
-    await waitFor(() => expect(state().user).toBeNull());
-    expect(fetchesTo("/auth/logout")).toHaveLength(1);
-    // Firebase may hold a persisted user this page never loaded; it must be cleared regardless.
-    expect(firebase.signOutUser).toHaveBeenCalledTimes(1);
-  });
-
-  it("keeps the user signed in when the backend logout fails", async () => {
-    routeFetch({
-      "/auth/session": () => json({ user: sessionUser }),
-      "/auth/logout": () => json({}, 500),
+    await act(async () => {
+      await expect(result.current.logout()).rejects.toBe(failure);
     });
 
+    expect(fetchesTo("/auth/logout")).toHaveLength(0);
+    expect(result.current).toMatchObject({ user: sessionUser, isLoggingOut: false });
+    await act(async () => result.current.logout());
+    expect(result.current).toMatchObject({ user: null, isLoggingOut: false });
+    expect(firebase.signOutUser).toHaveBeenCalledTimes(2);
+    expect(fetchesTo("/auth/logout")).toHaveLength(1);
+  });
+
+  it("keeps the displayed user through Firebase's callback and a backend failure, then retries", async () => {
+    const backendLogout = Promise.withResolvers<Response>();
+    let logoutResponse = backendLogout.promise;
+    routeFetch({
+      "/auth/session": () => json({}, 401),
+      "/auth/login": () => json({ user: sessionUser }),
+      "/auth/logout": () => logoutResponse,
+    });
+    const subscription = captureFirebaseSubscription();
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    await waitFor(() => expect(subscription.emit).not.toBeNull());
+    const firebaseUser = verifiedFirebaseUser();
+    act(() => subscription.emit?.(firebaseUser));
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.user).toEqual(sessionUser);
+    const emitSignOut = async () => subscription.emit?.(null);
+    firebase.signOutUser.mockImplementationOnce(emitSignOut).mockImplementationOnce(emitSignOut);
+
+    let pendingLogout: Promise<void>;
+    act(() => {
+      pendingLogout = result.current.logout();
+    });
+    await waitFor(() => expect(fetchesTo("/auth/logout")).toHaveLength(1));
+    expect(result.current).toMatchObject({
+      user: sessionUser,
+      firebaseUser,
+      isLoading: false,
+      isLoggingOut: true,
+    });
+    await act(async () => {
+      backendLogout.resolve(json({}, 500));
+      await expect(pendingLogout).rejects.toThrow("Logout failed with status 500");
+    });
+
+    expect(result.current).toMatchObject({ user: sessionUser, isLoggingOut: false });
+    logoutResponse = Promise.resolve(new Response(null, { status: 204 }));
+    await act(async () => result.current.logout());
+    expect(result.current).toMatchObject({
+      user: null,
+      firebaseUser: null,
+      isLoading: false,
+      isLoggingOut: false,
+    });
+    expect(firebase.signOutUser).toHaveBeenCalledTimes(2);
+    expect(fetchesTo("/auth/logout")).toHaveLength(2);
+  });
+
+  it("still applies Firebase sign-outs that occur outside an explicit logout", async () => {
+    routeFetch({
+      "/auth/session": () => json({}, 401),
+      "/auth/login": () => json({ user: sessionUser }),
+    });
+    const subscription = captureFirebaseSubscription();
     renderProvider();
+    await waitFor(() => expect(subscription.emit).not.toBeNull());
+    act(() => subscription.emit?.(verifiedFirebaseUser()));
     await waitFor(() => expect(state().user).toBe("user-1"));
 
-    act(() => screen.getByText("logout").click());
-    await waitFor(() => expect(fetchesTo("/auth/logout")).toHaveLength(1));
+    act(() => subscription.emit?.(null));
 
-    expect(state().user).toBe("user-1");
-    expect(firebase.signOutUser).not.toHaveBeenCalled();
+    await waitFor(() => expect(state().isLoading).toBe(false));
+    expect(state()).toMatchObject({ user: null, hasFirebaseUser: false });
   });
 });

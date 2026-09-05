@@ -88,6 +88,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (!active || !isCurrent()) return;
             const initial = !settled;
             settled = true;
+            // Explicit logout owns the displayed state until both sign-outs succeed.
+            if (!nextFirebaseUser && logoutInFlight.current) {
+              if (initial) resolve();
+              return;
+            }
             const run = async () => {
               if (!initial) setIsLoading(true);
               try {
@@ -222,27 +227,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     const run = async () => {
-      // End the backend session before touching anything local: if this fails, the user is
-      // still fully signed in and the caller can surface the error and retry.
-      await AuthService.logout();
       // Firebase may hold a persisted user this page never loaded (the session came from the
-      // cookie), and it would sign the user straight back in on the next load, so always clear
-      // it. The cookie is already gone, so a failure here must not undo the sign-out.
-      try {
-        await signOutUser();
-      } catch (error) {
-        console.warn("Backend session ended but Firebase sign-out failed:", error);
-      }
+      // cookie). Clear it first so a Firebase failure leaves the backend session available.
+      await signOutUser();
+      await AuthService.logout();
       setUser(null);
       setFirebaseUser(null);
       setSyncError(null);
     };
 
     setIsLoggingOut(true);
-    const promise = run().finally(() => {
-      logoutInFlight.current = null;
-      setIsLoggingOut(false);
-    });
+    // Install the guard before Firebase can notify the auth-state listener.
+    const promise = Promise.resolve()
+      .then(run)
+      .finally(() => {
+        logoutInFlight.current = null;
+        setIsLoggingOut(false);
+      });
     logoutInFlight.current = promise;
     return promise;
   }, []);

@@ -28,9 +28,9 @@ export interface AuthContextType {
   /** True while a logout is in flight, so apps can disable their sign-out control. */
   isLoggingOut: boolean;
   /**
-   * Ends the backend session, then signs out Firebase and clears local state.
-   * Rejects without touching local state if the backend session could not be
-   * ended — the caller should surface the error; calling again retries.
+   * Signs out Firebase, then ends the backend session and clears the displayed user.
+   * If either step fails, rejects and keeps the displayed user so the caller can
+   * surface the error and retry. Firebase may already be signed out at that point.
    * Concurrent calls share the same in-flight promise.
    */
   logout: () => Promise<void>;
