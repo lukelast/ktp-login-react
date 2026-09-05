@@ -5,16 +5,15 @@ import type { User } from "./types";
 const REQUEST_TIMEOUT_MS = 10_000;
 
 /**
- * A `/auth/login` exchange the backend answered with an error status. Carries the status so
- * callers can tell a credential rejection (the backend refused this user) from a broken backend
- * (a 500), which are very different situations: the first means "signed out", the second means
- * "unknown".
+ * A backend auth request answered with an error status. Carries the status so callers can tell a
+ * credential rejection (the backend refused this user) from a broken backend (a 500), which are
+ * very different situations: the first means "signed out", the second means "unknown".
  */
 export class AuthBackendError extends Error {
   readonly status: number;
 
   constructor(status: number) {
-    super(`Backend login failed with status ${status}`);
+    super(`Backend auth request failed with status ${status}`);
     this.name = "AuthBackendError";
     this.status = status;
   }
@@ -25,7 +24,34 @@ export class AuthBackendError extends Error {
   }
 }
 
+const readUser = async (response: Response, what: string): Promise<User> => {
+  const data: { user?: User } = await response.json();
+  if (!data.user) {
+    throw new Error(`Backend ${what} returned no user data`);
+  }
+  return data.user;
+};
+
 export const AuthService = {
+  /**
+   * The signed-in user from the session cookie alone, or null when there is no session. This is
+   * the page-load hot path: the server answers from the cookie without Firebase or storage.
+   */
+  session: async (): Promise<User | null> => {
+    const response = await fetch(AUTH_URLS.session, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+    if (response.status === 401) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new AuthBackendError(response.status);
+    }
+    return readUser(response, "session");
+  },
+
+  /** Exchanges a Firebase ID token for the session cookie. */
   login: async (idToken: string): Promise<User> => {
     const response = await fetch(AUTH_URLS.login, {
       method: "POST",
@@ -38,11 +64,7 @@ export const AuthService = {
     if (!response.ok) {
       throw new AuthBackendError(response.status);
     }
-    const data: { user?: User } = await response.json();
-    if (!data.user) {
-      throw new Error("Backend login returned no user data");
-    }
-    return data.user;
+    return readUser(response, "login");
   },
 
   logout: async (): Promise<void> => {

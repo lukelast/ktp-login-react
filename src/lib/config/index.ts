@@ -1,13 +1,17 @@
 import type { AuthClientConfig, AuthLibraryConfig, ResolvedAuthLibraryConfig } from "./types";
 
 let config: ResolvedAuthLibraryConfig | null = null;
-let initialization: Promise<void> | null = null;
+let clientConfigLoad: Promise<AuthClientConfig> | null = null;
 
 /** Fixed same-origin auth routes registered by ktp-gcp-auth. Convention, not configuration. */
 export const AUTH_URLS = {
   clientConfig: "/auth/config",
   login: "/auth/login",
   logout: "/auth/logout",
+  /** `GET`: the signed-in user from the session cookie alone; 401 when there is none. */
+  session: "/auth/session",
+  /** `GET`, local dev only: signs in as a named dev user and redirects. See `devLoginUrl`. */
+  devLogin: "/auth/dev/login",
 } as const;
 
 const CLIENT_CONFIG_REQUEST_TIMEOUT_MS = 10_000;
@@ -75,6 +79,8 @@ const parseAuthClientConfig = (value: unknown): AuthClientConfig => {
       authDomain: asNonBlankString(firebase.authDomain, "firebase.authDomain"),
     },
     enabledProviders: [...root.enabledProviders] as string[],
+    // Absent on servers predating the dev login; a missing flag can only hide a button.
+    devLogin: root.devLogin === true,
   };
 };
 
@@ -117,13 +123,16 @@ const loadAuthClientConfig = async (url: string): Promise<AuthClientConfig> => {
   return parseAuthClientConfig(body);
 };
 
-const initialize = async (userConfig: AuthLibraryConfig): Promise<void> => {
-  const clientConfig = await loadAuthClientConfig(AUTH_URLS.clientConfig);
-
+/**
+ * Resolves the frontend-only settings (routes, password rules). Synchronous and network-free, so
+ * routes can be built before anything has been fetched; a repeat call is a no-op.
+ */
+export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): void => {
+  if (config !== null) {
+    return;
+  }
   config = {
-    firebase: clientConfig.firebase,
     auth: {
-      enabledProviders: clientConfig.enabledProviders,
       routes: {
         ...DEFAULTS.auth.routes,
         ...userConfig.auth.routes,
@@ -136,24 +145,10 @@ const initialize = async (userConfig: AuthLibraryConfig): Promise<void> => {
   };
 };
 
-/** Loads backend-owned auth configuration and resolves frontend-only settings. */
-export const initializeAuthLibrary = (userConfig: AuthLibraryConfig): Promise<void> => {
-  if (config !== null) {
-    return Promise.resolve();
-  }
-  if (initialization === null) {
-    initialization = initialize(userConfig).catch((error: unknown) => {
-      initialization = null;
-      throw error;
-    });
-  }
-  return initialization;
-};
-
 export const getAuthConfig = (): ResolvedAuthLibraryConfig => {
   if (!config) {
     throw new Error(
-      "Auth library not initialized. Await initializeAuthLibrary(config) before using auth components.",
+      "Auth library not initialized. Call initializeAuthLibrary(config) before using auth components.",
     );
   }
   return config;
@@ -161,6 +156,22 @@ export const getAuthConfig = (): ResolvedAuthLibraryConfig => {
 
 export const isAuthLibraryInitialized = (): boolean => {
   return config !== null;
+};
+
+/**
+ * Backend-owned auth configuration (Firebase client keys, enabled providers, dev login), fetched
+ * on first use and cached for the page's lifetime. A signed-in page load never needs it, which is
+ * why it is not part of initialization. Concurrent callers share one request; a failed load is
+ * retried on the next call.
+ */
+export const getAuthClientConfig = (): Promise<AuthClientConfig> => {
+  if (clientConfigLoad === null) {
+    clientConfigLoad = loadAuthClientConfig(AUTH_URLS.clientConfig).catch((error: unknown) => {
+      clientConfigLoad = null;
+      throw error;
+    });
+  }
+  return clientConfigLoad;
 };
 
 export type {

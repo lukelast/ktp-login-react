@@ -1,16 +1,20 @@
 import type { User as FirebaseUser } from "firebase/auth";
 
+/** The signed-in user as the backend reports it; identical from `/auth/login` and `/auth/session`. */
 export interface User {
   userId: string;
   email: string;
   nameFull: string;
   nameFirst: string;
   roles: string[];
-  extra: unknown;
 }
 
 export interface AuthContextType {
   user: User | null;
+  /**
+   * Null whenever the session was restored from the cookie alone, which is the normal page load:
+   * Firebase only enters the picture to establish a session, not to keep one.
+   */
   firebaseUser: FirebaseUser | null;
   isLoading: boolean;
   /**
@@ -30,5 +34,9 @@ export interface AuthContextType {
    * Concurrent calls share the same in-flight promise.
    */
   logout: () => Promise<void>;
+  /**
+   * Re-establishes the session: reloads the Firebase user when one is in play, otherwise
+   * re-checks the cookie. Returns the Firebase user, or null when the session is cookie-only.
+   */
   refreshUser: () => Promise<FirebaseUser | null>;
 }

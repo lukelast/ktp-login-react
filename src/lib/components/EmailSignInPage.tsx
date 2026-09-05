@@ -12,17 +12,18 @@ export const EmailSignInPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Opening the page via a sign-in link goes straight into completing that
-  // sign-in, so it starts out loading.
-  const [isLoading, setIsLoading] = useState(() => isAuthSignInWithEmailLink(window.location.href));
+  // Whether this URL is a sign-in link is Firebase's call, and Firebase loads lazily, so the page
+  // starts out loading and settles once that is known (into completing the sign-in, or the form).
+  const [isLoading, setIsLoading] = useState(true);
   const config = getAuthConfig();
 
   useEffect(() => {
-    if (!isAuthSignInWithEmailLink(window.location.href)) {
-      return;
-    }
+    let active = true;
 
     const completeLinkSignIn = async () => {
+      if (!(await isAuthSignInWithEmailLink(window.location.href))) {
+        return;
+      }
       let emailForSignIn = window.localStorage.getItem("emailForSignIn");
       if (!emailForSignIn) {
         emailForSignIn = window.prompt("Please provide your email for confirmation");
@@ -39,9 +40,17 @@ export const EmailSignInPage: React.FC = () => {
     completeLinkSignIn()
       .catch((error: unknown) => {
         console.error("Error signing in with email link", error);
-        setError(error instanceof Error ? error.message : "Error signing in with email link");
+        if (active) {
+          setError(error instanceof Error ? error.message : "Error signing in with email link");
+        }
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [config.auth.routes.afterLogin]);
 
   const handleSendLink = async (e: React.FormEvent) => {
@@ -89,7 +98,7 @@ export const EmailSignInPage: React.FC = () => {
 
         {isSent ? (
           <div className="ktp-content ktp-space-y-4">
-            <div className="ktp-success-message">
+            <div className="ktp-success">
               <p>
                 We sent an email to <strong>{email}</strong>. Click the link in the email to sign
                 in.

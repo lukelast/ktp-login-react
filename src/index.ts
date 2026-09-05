@@ -6,6 +6,7 @@ export {
   AuthClientConfigError,
   initializeAuthLibrary,
   getAuthConfig,
+  getAuthClientConfig,
   isAuthLibraryInitialized,
 } from "./lib/config";
 export type {
@@ -18,6 +19,7 @@ export type {
 // Auth types
 export type { User, AuthContextType } from "./lib/auth/types";
 export { AuthBackendError } from "./lib/auth/AuthService";
+export { devLoginUrl, DEV_USER_PATTERN } from "./lib/auth/devLogin";
 
 // Auth hooks and components
 export { useAuth } from "./lib/auth/useAuth";

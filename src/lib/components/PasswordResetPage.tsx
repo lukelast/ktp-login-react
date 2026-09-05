@@ -71,13 +71,13 @@ export const PasswordResetPage: React.FC = () => {
         </div>
 
         {success && (
-          <div className="ktp-success">
+          <div className="ktp-success ktp-mt-4">
             <div className="ktp-success-text">{success}</div>
           </div>
         )}
 
         {error && (
-          <div className="ktp-error" style={{ marginTop: "1rem" }}>
+          <div className="ktp-error ktp-mt-4">
             <div className="ktp-error-text">{error}</div>
           </div>
         )}

@@ -9,14 +9,18 @@ import {
   MICROSOFT_PROVIDER_ID,
 } from "../firebase/firebase";
 import { useAuth } from "../auth/useAuth";
+import { useAuthClientConfig } from "../auth/useAuthClientConfig";
+import { DEV_USER_PATTERN, goToDevLogin } from "../auth/devLogin";
 import { getAuthConfig } from "../config";
-import {
-  type User,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  GithubAuthProvider,
-  EmailAuthProvider,
-} from "firebase/auth";
+import type { User } from "firebase/auth";
+
+// Firebase provider ids as the backend reports them; literals so this page never imports the
+// Firebase SDK, which is loaded lazily and only when a sign-in actually starts.
+const GOOGLE = "google.com";
+const GITHUB = "github.com";
+const FACEBOOK = "facebook.com";
+const PASSWORD = "password";
+const EMAIL_LINK = "emailLink";
 
 interface LoginPageProps {
   redirectTo?: string;
@@ -27,16 +31,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
   const navigate = useNavigate();
 
   const config = getAuthConfig();
-  const enabledProviders = config.auth.enabledProviders;
+  const destination = redirectTo || config.auth.routes.afterLogin;
+  const clientConfig = useAuthClientConfig();
+  const enabledProviders = clientConfig.config?.enabledProviders ?? [];
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [devUser, setDevUser] = useState("");
 
   useEffect(() => {
     if (!authLoading && user) {
-      navigate(redirectTo || config.auth.routes.afterLogin);
+      navigate(destination);
     }
-  }, [user, authLoading, navigate, redirectTo, config.auth.routes.afterLogin]);
+  }, [user, authLoading, navigate, destination]);
 
   const handleLogin = async (loginFn: () => Promise<User>) => {
     setIsLoading(true);
@@ -44,7 +51,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
 
     try {
       await loginFn();
-      navigate(redirectTo || config.auth.routes.afterLogin);
+      navigate(destination);
     } catch (error: unknown) {
       console.error("Login failed:", error);
       const errorMessage = error instanceof Error ? error.message : "Login failed";
@@ -59,7 +66,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
   const handleGoogleLogin = () => handleLogin(signInWithGoogle);
   const handleFacebookLogin = () => handleLogin(signInWithFacebook);
 
-  if (authLoading) {
+  // A full navigation: the server sets the cookie and redirects, and the next page load restores
+  // the session from it exactly like any other.
+  const handleDevLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+    goToDevLogin(devUser.trim(), destination);
+  };
+
+  if (authLoading || clientConfig.loading) {
     return (
       <div className="ktp-page">
         <div className="ktp-card">
@@ -76,6 +90,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
     return null;
   }
 
+  if (clientConfig.config === null) {
+    return (
+      <div className="ktp-page">
+        <div className="ktp-card">
+          <h1 className="ktp-title-sm">Sign-in unavailable</h1>
+          <div className="ktp-content ktp-space-y-4">
+            <div className="ktp-error">
+              <div className="ktp-error-text">{clientConfig.error}</div>
+            </div>
+            <button type="button" className="ktp-btn-primary" onClick={clientConfig.retry}>
+              Try again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="ktp-page">
       <div className="ktp-card">
@@ -83,7 +115,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
         <p className="ktp-subtitle">Please sign in. You don't need to create an account first.</p>
         <div className="ktp-content ktp-space-y-4">
           <div className="ktp-space-y-3">
-            {enabledProviders.includes(GoogleAuthProvider.PROVIDER_ID) && (
+            {enabledProviders.includes(GOOGLE) && (
               <button
                 type="button"
                 className="ktp-btn-oauth"
@@ -114,7 +146,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </button>
             )}
 
-            {enabledProviders.includes(GithubAuthProvider.PROVIDER_ID) && (
+            {enabledProviders.includes(GITHUB) && (
               <button
                 type="button"
                 onClick={handleGitHubLogin}
@@ -151,7 +183,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </button>
             )}
 
-            {enabledProviders.includes(FacebookAuthProvider.PROVIDER_ID) && (
+            {enabledProviders.includes(FACEBOOK) && (
               <button
                 type="button"
                 onClick={handleFacebookLogin}
@@ -167,7 +199,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
             )}
 
             {/* "emailLink" is sent when Identity Platform's "Allow passwordless login" is on. */}
-            {enabledProviders.includes(EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD) && (
+            {enabledProviders.includes(EMAIL_LINK) && (
               <button
                 type="button"
                 onClick={() => navigate(config.auth.routes.signInWithEmail)}
@@ -187,7 +219,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </button>
             )}
 
-            {enabledProviders.includes(EmailAuthProvider.PROVIDER_ID) && (
+            {enabledProviders.includes(PASSWORD) && (
               <button
                 type="button"
                 onClick={() => navigate(config.auth.routes.signInWithPassword)}
@@ -207,6 +239,34 @@ export const LoginPage: React.FC<LoginPageProps> = ({ redirectTo }) => {
               </button>
             )}
           </div>
+
+          {clientConfig.config.devLogin && (
+            <>
+              <div className="ktp-divider">
+                <span>Local development</span>
+              </div>
+              <form onSubmit={handleDevLogin} className="ktp-space-y-3" data-testid="dev-login">
+                <label className="ktp-label" htmlFor="ktpDevUser">
+                  Dev user (optional; each name owns its own data)
+                </label>
+                <input
+                  id="ktpDevUser"
+                  name="user"
+                  className="ktp-input"
+                  value={devUser}
+                  onChange={(e) => setDevUser(e.target.value)}
+                  pattern={DEV_USER_PATTERN}
+                  title="Lowercase letters, digits and dashes"
+                  placeholder="dev"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+                <button type="submit" className="ktp-btn-primary" disabled={isLoading}>
+                  Sign in as dev user
+                </button>
+              </form>
+            </>
+          )}
 
           {error && (
             <div className="ktp-error">

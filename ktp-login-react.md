@@ -13,13 +13,14 @@ npm install react react-dom firebase react-router-dom
 
 ### 1. Initialize Library
 
-Await `initializeAuthLibrary()` before rendering any components (typically in main.tsx). It loads
-Firebase settings and enabled providers from ktp-gcp-auth:
+Call `initializeAuthLibrary()` before rendering any components (typically in main.tsx). It is
+synchronous: it only resolves frontend settings. Firebase settings and enabled providers are fetched
+lazily from ktp-gcp-auth by the pages that need them.
 
 ```tsx
 import { initializeAuthLibrary } from "ktp-login-react";
 
-await initializeAuthLibrary({
+initializeAuthLibrary({
   auth: {
     routes: {
       afterLogin: "/dashboard",
@@ -52,6 +53,10 @@ Import the CSS in your main entry file:
 ```tsx
 import "ktp-login-react/styles.css";
 ```
+
+The screens are skinned by redefining the `--ktp-*` custom properties on `.ktp-page` (colors,
+radii, borders, shadows, font); the stylesheet lives in the `ktp` cascade layer, so app rules
+always win. See the README's Styling section for the token list.
 
 ### 4. Setup Routes
 
@@ -93,10 +98,14 @@ function YourRoutes() {
 
 ### Functions
 
-- `initializeAuthLibrary(config)` - Load runtime config and initialize (must be awaited first)
-- `getAuthConfig()` - Get current config
+- `initializeAuthLibrary(config)` - Set frontend config (routes, password rules); synchronous
+- `getAuthConfig()` - Get current frontend config
 - `isAuthLibraryInitialized()` - Check if initialized
+- `getAuthClientConfig()` - Backend-owned config (Firebase keys, providers, `devLogin`), fetched
+  lazily and cached; rejects with `AuthClientConfigError`, retried on the next call
 - `getAuthRoutes()` - Get route configuration for auth pages
+- `devLoginUrl(user, redirect)`, `DEV_USER_PATTERN` - Local-dev login URL and its user-name rule
+- `AUTH_URLS` - The fixed backend paths
 
 ### Firebase Utilities
 
@@ -184,7 +193,7 @@ Returns:
 - `refreshUser: () => Promise<FirebaseUser | null>` - Force refresh user state (also the retry
   path for `syncError`)
 
-The `AuthBackendError` class (exported) is what `AuthService.login` throws for an error status;
+The `AuthBackendError` class (exported) is what a failed backend login or session request throws;
 its `status` and `isAuthRejection` fields are how the provider tells a 401/403 from a broken
 backend.
 
@@ -197,18 +206,27 @@ interface User {
   nameFull: string;
   nameFirst: string;
   roles: string[];
-  extra: any;
 }
 ```
 
 ## Backend Requirements
 
-This library expects a ktp-gcp-auth backend with three endpoints at fixed, conventional paths
-(exported as `AUTH_URLS`): `GET /auth/config`, `POST /auth/login`, `POST /auth/logout`.
+This library expects a ktp-gcp-auth backend with these endpoints at fixed paths (exported as
+`AUTH_URLS`): `GET /auth/session`, `GET /auth/config`, `POST /auth/login`, `POST /auth/logout`,
+and in local dev `GET /auth/dev/login`. The session is an HttpOnly cookie the backend sets on
+login; the library never sees it.
+
+### GET /auth/session
+
+Called once on every page load by `AuthProvider`. Answers the same `user` object as `/auth/login`
+from the cookie alone (re-issuing it to slide expiry), or 401 when there is no session. Nothing
+else runs on the signed-in page-load path: Firebase is not loaded and `/auth/config` is not
+fetched.
 
 ### GET /auth/config
 
-Loaded once during initialization. Its response has this shape:
+Fetched lazily by the pages that need it (the login page, any Firebase call), never on a signed-in
+page load. Its response has this shape:
 
 ```json
 {
@@ -217,12 +235,13 @@ Loaded once during initialization. Its response has this shape:
     "projectId": "project-id",
     "authDomain": "project-id.firebaseapp.com"
   },
-  "enabledProviders": ["google.com", "password"]
+  "enabledProviders": ["google.com", "password"],
+  "devLogin": false
 }
 ```
 
-Failed or invalid responses reject with `AuthClientConfigError` and may be retried by calling
-initialization again.
+Failed or invalid responses reject with `AuthClientConfigError`; the next `getAuthClientConfig()`
+call retries.
 
 ### POST /auth/login
 
@@ -249,7 +268,13 @@ Response:
 
 ### POST /auth/logout
 
-Called when user logs out. No request body required.
+Called when user logs out. No request body required; clears the cookie.
+
+### GET /auth/dev/login
+
+Local dev only (`devLogin: true` in `/auth/config`). A full navigation to
+`/auth/dev/login?user=<name>&redirect=<path>` signs the browser in as `dev-<name>` (or `dev` when
+`user` is omitted), sets the cookie, and redirects. The login page shows a form for it.
 
 ## Common Usage Patterns
 
@@ -425,22 +450,24 @@ function UserStatus() {
 
 ## Important Notes
 
-1. **Initialization Required**: Must await `initializeAuthLibrary()` before rendering any components
+1. **Initialization Required**: Call `initializeAuthLibrary()` (synchronous) before rendering any components
 2. **AuthProvider Required**: Must wrap app with `<AuthProvider>` for useAuth hook to work
-3. **Backend Integration**: Requires the ktp-gcp-auth runtime config, login, and logout endpoints
+3. **Backend Integration**: Requires the ktp-gcp-auth session, config, login, and logout endpoints
 4. **React Router**: Uses react-router-dom for navigation
 5. **CSS Import**: Must import "ktp-login-react/styles.css" for styled components
 6. **Provider Gating**: Only providers listed in enabledProviders will show login buttons
 
 ## Auth Flow
 
-1. Application initialization loads public auth configuration from the backend
-2. User signs in with Firebase (OAuth or email/password)
-3. Library obtains Firebase ID token
-4. Library POSTs the token to the fixed backend login endpoint (/auth/login)
-5. Backend validates the token and returns a user object
-6. User object is stored in AuthContext
-7. On logout, the library calls both Firebase signOut and the fixed backend logout endpoint (/auth/logout)
+1. On page load `AuthProvider` calls `/auth/session`; a 200 is the signed-in user, a 401 is signed
+   out, anything else is `syncError` (state unknown, retry offered)
+2. Signed out, the login page fetches `/auth/config` and shows the enabled providers (and the dev
+   login form when `devLogin` is true)
+3. User signs in with Firebase (OAuth or email/password); the SDK is loaded on demand
+4. Library POSTs the Firebase ID token to `/auth/login`; the backend validates it, sets the session
+   cookie, and returns the user object, which is stored in AuthContext
+5. Later page loads restore the session from the cookie alone (step 1); Firebase is not involved
+6. On logout, the library calls `/auth/logout` and then Firebase signOut
 
 ## TypeScript Support
 

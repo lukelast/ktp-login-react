@@ -9,6 +9,7 @@ const clientConfig = {
     authDomain: "test-project.firebaseapp.com",
   },
   enabledProviders: ["google.com", "password"],
+  devLogin: true,
 };
 
 const response = (body: unknown, status = 200) =>
@@ -16,6 +17,8 @@ const response = (body: unknown, status = 200) =>
     status,
     headers: { "Content-Type": "application/json" },
   });
+
+const userConfig = { auth: { routes: { afterLogin: "/dashboard" } } };
 
 beforeEach(() => {
   vi.resetModules();
@@ -28,28 +31,18 @@ afterEach(() => {
 });
 
 describe("initializeAuthLibrary", () => {
-  it("loads backend-owned configuration from the default URL", async () => {
-    fetchMock.mockResolvedValueOnce(response(clientConfig));
-    const { getAuthConfig, initializeAuthLibrary } = await import("./index");
-
-    await initializeAuthLibrary({
-      auth: {
-        routes: { afterLogin: "/dashboard" },
-      },
-    });
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/auth/config",
-      expect.objectContaining({
-        headers: { Accept: "application/json" },
-      }),
+  it("resolves frontend-only settings synchronously without touching the network", async () => {
+    const { getAuthConfig, initializeAuthLibrary, isAuthLibraryInitialized } = await import(
+      "./index"
     );
-    // Default HTTP caching lets the browser honor the backend's max-age.
-    expect(fetchMock.mock.calls[0]?.[1]).not.toHaveProperty("cache");
+
+    expect(isAuthLibraryInitialized()).toBe(false);
+    initializeAuthLibrary(userConfig);
+
+    expect(isAuthLibraryInitialized()).toBe(true);
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(getAuthConfig()).toEqual({
-      firebase: clientConfig.firebase,
       auth: {
-        enabledProviders: clientConfig.enabledProviders,
         routes: {
           login: "/p/login",
           signup: "/p/signup",
@@ -66,15 +59,11 @@ describe("initializeAuthLibrary", () => {
   });
 
   it("applies local UI route and password overrides", async () => {
-    fetchMock.mockResolvedValueOnce(response(clientConfig));
     const { getAuthConfig, initializeAuthLibrary } = await import("./index");
 
-    await initializeAuthLibrary({
+    initializeAuthLibrary({
       auth: {
-        routes: {
-          login: "/login",
-          afterLogin: "/home",
-        },
+        routes: { login: "/login", afterLogin: "/home" },
         password: { minLength: 12 },
       },
     });
@@ -84,53 +73,73 @@ describe("initializeAuthLibrary", () => {
     expect(getAuthConfig().auth.password.minLength).toBe(12);
   });
 
-  it("coalesces concurrent initialization calls", async () => {
-    fetchMock.mockResolvedValueOnce(response(clientConfig));
-    const { initializeAuthLibrary } = await import("./index");
-    const config = {
-      auth: {
-        routes: { afterLogin: "/dashboard" },
-      },
-    };
+  it("throws until initialized", async () => {
+    const { getAuthConfig } = await import("./index");
 
-    await Promise.all([initializeAuthLibrary(config), initializeAuthLibrary(config)]);
+    expect(getAuthConfig).toThrow("Auth library not initialized");
+  });
+});
+
+describe("getAuthClientConfig", () => {
+  it("loads backend-owned configuration from the fixed URL with default HTTP caching", async () => {
+    fetchMock.mockResolvedValueOnce(response(clientConfig));
+    const { getAuthClientConfig } = await import("./index");
+
+    await expect(getAuthClientConfig()).resolves.toEqual(clientConfig);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/auth/config",
+      expect.objectContaining({ headers: { Accept: "application/json" } }),
+    );
+    // Default HTTP caching lets the browser honor the backend's max-age.
+    expect(fetchMock.mock.calls[0]?.[1]).not.toHaveProperty("cache");
+  });
+
+  it("treats a missing devLogin flag as false", async () => {
+    fetchMock.mockResolvedValueOnce(
+      response({
+        firebase: clientConfig.firebase,
+        enabledProviders: clientConfig.enabledProviders,
+      }),
+    );
+    const { getAuthClientConfig } = await import("./index");
+
+    await expect(getAuthClientConfig()).resolves.toMatchObject({ devLogin: false });
+  });
+
+  it("shares one request between concurrent callers and caches the result", async () => {
+    fetchMock.mockResolvedValueOnce(response(clientConfig));
+    const { getAuthClientConfig } = await import("./index");
+
+    await Promise.all([getAuthClientConfig(), getAuthClientConfig()]);
+    await getAuthClientConfig();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("reports backend errors and allows initialization to be retried", async () => {
+  it("reports backend errors and retries on the next call", async () => {
     fetchMock
       .mockResolvedValueOnce(response({}, 503))
       .mockResolvedValueOnce(response(clientConfig));
-    const { getAuthConfig, initializeAuthLibrary } = await import("./index");
-    const config = {
-      auth: {
-        routes: { afterLogin: "/dashboard" },
-      },
-    };
+    const { getAuthClientConfig } = await import("./index");
 
-    await expect(initializeAuthLibrary(config)).rejects.toMatchObject({
+    await expect(getAuthClientConfig()).rejects.toMatchObject({
       name: "AuthClientConfigError",
       status: 503,
     });
-    await expect(initializeAuthLibrary(config)).resolves.toBeUndefined();
+    await expect(getAuthClientConfig()).resolves.toEqual(clientConfig);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(getAuthConfig().firebase).toEqual(clientConfig.firebase);
   });
 
   it("rejects invalid runtime configuration", async () => {
     fetchMock.mockResolvedValueOnce(
-      response({
-        ...clientConfig,
-        firebase: { ...clientConfig.firebase, authDomain: "" },
-      }),
+      response({ ...clientConfig, firebase: { ...clientConfig.firebase, authDomain: "" } }),
     );
-    const { getAuthConfig, initializeAuthLibrary } = await import("./index");
+    const { getAuthClientConfig } = await import("./index");
 
-    await expect(
-      initializeAuthLibrary({ auth: { routes: { afterLogin: "/dashboard" } } }),
-    ).rejects.toThrow("firebase.authDomain must be a non-blank string");
-    expect(getAuthConfig).toThrow("Auth library not initialized");
+    await expect(getAuthClientConfig()).rejects.toThrow(
+      "firebase.authDomain must be a non-blank string",
+    );
   });
 });

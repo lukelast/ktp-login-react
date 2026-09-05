@@ -9,10 +9,12 @@ export type FirebaseClientConfig = Required<
 export interface AuthClientConfig {
   firebase: FirebaseClientConfig;
   enabledProviders: string[];
+  /** Whether the server mounts the local-dev login (`AUTH_URLS.devLogin`); local dev only. */
+  devLogin: boolean;
 }
 
 /**
- * See `DEFAULTS` in `./index.ts` for defaults.
+ * Frontend-only settings; nothing here comes from the backend. See `DEFAULTS` in `./index.ts`.
  */
 export interface AuthLibraryConfig {
   auth: {
@@ -35,11 +37,7 @@ export interface AuthLibraryConfig {
 
 // Internal resolved config with all defaults applied
 export interface ResolvedAuthLibraryConfig {
-  firebase: FirebaseClientConfig;
-
   auth: {
-    enabledProviders: string[];
-
     routes: {
       login: string;
       signup: string;
