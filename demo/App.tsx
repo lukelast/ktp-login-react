@@ -1,9 +1,31 @@
 import type React from "react";
 import { useState } from "react";
-import { Routes, Route, Link, Navigate } from "react-router-dom";
-import { ProtectedRoute, useAuth, getAuthConfig, AuthRoutes } from "../src";
+import { Link, Navigate, Route, Routes } from "react-router-dom";
+import { AuthRoutes, getAuthConfig, ProtectedRoute, useAuth } from "../src";
 
 import "./demoStyles.css";
+
+const SKIN_CLASS = "demo-skin";
+
+/**
+ * Flips the demo skin on and off. The skin is nothing but a different set of `--ktp-*` tokens in
+ * demoStyles.css, so this shows what an app's theme override does to every screen.
+ */
+const SkinToggle: React.FC = () => {
+  const [skinned, setSkinned] = useState(() =>
+    document.documentElement.classList.contains(SKIN_CLASS),
+  );
+  const toggle = () => {
+    document.documentElement.classList.toggle(SKIN_CLASS, !skinned);
+    setSkinned(!skinned);
+  };
+  return (
+    <label className="demo-skin-toggle">
+      <input type="checkbox" checked={skinned} onChange={toggle} />
+      Demo skin (token override)
+    </label>
+  );
+};
 
 const Dashboard: React.FC = () => {
   const { user, firebaseUser, logout, isLoggingOut } = useAuth();
@@ -17,108 +39,95 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="ktp-demo-page">
-      <div className="ktp-demo-container">
-        <div className="ktp-demo-card">
-          <h1 className="ktp-demo-title">Dashboard</h1>
-          {user ? (
-            <div className="ktp-space-y-4">
-              <button
-                type="button"
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="ktp-btn-danger"
-              >
-                {isLoggingOut ? "Logging Out…" : "Log Out"}
-              </button>
-              {logoutError && (
-                <div className="ktp-error">
-                  <p className="ktp-error-text">{logoutError}</p>
-                </div>
-              )}
-              <p className="ktp-text-lg">
-                Welcome, <strong>{user.nameFirst || user.email || "Anonymous User"}</strong>!
-              </p>
-              <div className="ktp-demo-user-info">
-                <h2>User Info:</h2>
-                <pre>{JSON.stringify(user, null, 2)}</pre>
-              </div>
-              <div className="ktp-demo-user-info">
-                <h2>Firebase User:</h2>
-                <pre>
-                  {firebaseUser
-                    ? JSON.stringify(
-                        firebaseUser.toJSON ? firebaseUser.toJSON() : firebaseUser,
-                        null,
-                        2,
-                      )
-                    : "No Firebase user data"}
-                </pre>
-              </div>
+    <div className="ktp-page">
+      <div className="ktp-card-form demo-wide ktp-space-y-4">
+        <h1 className="ktp-title-sm">Dashboard</h1>
+        {user ? (
+          <>
+            <p className="ktp-text">
+              Signed in as <strong>{user.nameFull || user.email || "an anonymous user"}</strong>
+            </p>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="ktp-btn-primary demo-danger"
+            >
+              {isLoggingOut ? "Logging out…" : "Log out"}
+            </button>
+            {logoutError && <div className="ktp-error">{logoutError}</div>}
+            <div className="demo-panel">
+              <h2>Backend user (from the session cookie)</h2>
+              <pre>{JSON.stringify(user, null, 2)}</pre>
             </div>
-          ) : (
-            <p>Not logged in</p>
-          )}
-        </div>
+            <div className="demo-panel">
+              <h2>Firebase user</h2>
+              <pre>
+                {firebaseUser
+                  ? JSON.stringify(firebaseUser.toJSON(), null, 2)
+                  : "None: the session was restored from the cookie, so Firebase was never loaded."}
+              </pre>
+            </div>
+          </>
+        ) : (
+          <p className="ktp-text">Not signed in</p>
+        )}
       </div>
     </div>
   );
 };
 
 const Home: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, syncError } = useAuth();
   const {
     auth: { routes },
   } = getAuthConfig();
 
   if (isLoading) {
     return (
-      <div className="ktp-loading-center">
-        <div>Loading...</div>
+      <div className="ktp-page">
+        <div className="ktp-spinner" />
       </div>
     );
   }
 
   return (
     <div className="ktp-page">
-      <div className="ktp-card-form" style={{ textAlign: "center" }}>
-        <h1 className="ktp-demo-title">KTP Login React Demo</h1>
-        <p className="ktp-text" style={{ marginBottom: "1.5rem" }}>
-          Test the authentication components locally
-        </p>
+      <div className="ktp-card ktp-space-y-3">
+        <h1 className="ktp-title">KTP Login React</h1>
+        <p className="ktp-subtitle">The auth screens against a local ktp-gcp-auth backend</p>
 
-        <div className="ktp-space-y-3">
-          {user ? (
-            <>
-              <p className="ktp-text-success">Logged in as {user.email || "Anonymous"}</p>
-              <Link to={routes.afterLogin} className="ktp-btn-blue">
-                Go to Dashboard
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to={routes.login} className="ktp-btn-blue">
-                Login Page
-              </Link>
-              <Link to={routes.signup} className="ktp-btn-green">
-                Signup Page
-              </Link>
-              <Link to={routes.resetPassword} className="ktp-btn-gray">
-                Password Reset Page
-              </Link>
-              <Link to={routes.anonymousLogin} className="ktp-btn-gray">
-                Anonymous Login
-              </Link>
-            </>
-          )}
-        </div>
+        {syncError && <div className="ktp-error">{syncError}</div>}
 
-        <div className="ktp-demo-section">
-          <h2>Test Protected Route:</h2>
-          <Link to={routes.afterLogin} className="ktp-demo-link">
-            Try accessing Dashboard (requires auth)
-          </Link>
-        </div>
+        {user ? (
+          <>
+            <p className="ktp-text">Signed in as {user.email || "an anonymous user"}</p>
+            <Link to={routes.afterLogin} className="ktp-btn-primary">
+              Dashboard
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to={routes.login} className="ktp-btn-primary">
+              Login page
+            </Link>
+            <Link to={routes.signup} className="ktp-btn-oauth">
+              Signup page
+            </Link>
+            <Link to={routes.resetPassword} className="ktp-btn-oauth">
+              Password reset page
+            </Link>
+            <Link to={routes.anonymousLogin} className="ktp-btn-oauth">
+              Anonymous login
+            </Link>
+            <div className="ktp-divider">
+              <span>Protected route</span>
+            </div>
+            <Link to={routes.afterLogin} className="ktp-link">
+              Open the dashboard while signed out
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
@@ -130,13 +139,16 @@ export const App: React.FC = () => {
   } = getAuthConfig();
 
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/*" element={<AuthRoutes />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path={routes.afterLogin} element={<Dashboard />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <SkinToggle />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/*" element={<AuthRoutes />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path={routes.afterLogin} element={<Dashboard />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 };

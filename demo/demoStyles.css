@@ -1,113 +1,79 @@
-.ktp-demo-page {
-  min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 2rem;
+/*
+ * Demo-only styles. The library's own stylesheet does all the work; this file shows the two ways
+ * an app builds on it: redefining `--ktp-*` tokens (the skin below) and, for shapes the tokens
+ * cannot express, styling a `ktp-*` class directly (the wide dashboard card).
+ */
+
+/* A whole alternate look from tokens alone; toggled from the corner of every page. */
+.demo-skin .ktp-page {
+  --ktp-bg: #1c1917;
+  --ktp-surface: #292524;
+  --ktp-text: #fafaf9;
+  --ktp-text-muted: #a8a29e;
+  --ktp-border: #57534e;
+  --ktp-accent: #f59e0b;
+  --ktp-accent-hover: #d97706;
+  --ktp-on-accent: #1c1917;
+  --ktp-hover: #44403c;
+  --ktp-error-bg: #451a1a;
+  --ktp-error-text: #fca5a5;
+  --ktp-success-bg: #14532d;
+  --ktp-success-text: #bbf7d0;
+  --ktp-skeleton: #44403c;
+  --ktp-font: Georgia, "Times New Roman", serif;
+  --ktp-radius: 0;
+  --ktp-card-radius: 0;
+  --ktp-card-border: 1px solid #57534e;
+  --ktp-card-shadow: none;
+  --ktp-control-shadow: none;
 }
-.ktp-demo-container {
+
+/* Unlayered, so it wins over the library's 28rem without fighting specificity. */
+.ktp-card-form.demo-wide {
   max-width: 56rem;
-  margin-left: auto;
-  margin-right: auto;
 }
-.ktp-demo-card {
-  background-color: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
+
+/* A destructive button is the primary button with its accent tokens swapped on the element. */
+.demo-danger {
+  --ktp-accent: #dc2626;
+  --ktp-accent-hover: #b91c1c;
+  --ktp-on-accent: #ffffff;
 }
-.ktp-demo-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+
+/* Links styled as buttons should not carry the anchor underline. */
+a.ktp-btn-primary,
+a.ktp-btn-oauth {
+  text-decoration: none;
 }
-.ktp-demo-user-info {
-  background-color: #f3f4f6;
+
+.demo-panel {
   padding: 1rem;
-  border-radius: 0.375rem;
+  text-align: left;
+  border: 1px solid var(--ktp-border);
+  border-radius: var(--ktp-radius);
 }
-.ktp-demo-user-info h2 {
+
+.demo-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
 }
-.ktp-demo-user-info pre {
+
+.demo-panel pre {
+  margin: 0;
   font-size: 0.875rem;
+  white-space: pre-wrap;
   overflow: auto;
 }
-.ktp-btn-danger {
-  background-color: #dc2626;
-  color: #ffffff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-}
-.ktp-btn-danger:hover {
-  background-color: #b91c1c;
-}
-.ktp-btn-blue {
-  display: block;
-  width: 100%;
-  background-color: #2563eb;
-  color: #ffffff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  text-decoration: none;
-  text-align: center;
-}
-.ktp-btn-blue:hover {
-  background-color: #1d4ed8;
-}
-.ktp-btn-green {
-  display: block;
-  width: 100%;
-  background-color: #16a34a;
-  color: #ffffff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  text-decoration: none;
-  text-align: center;
-}
-.ktp-btn-green:hover {
-  background-color: #15803d;
-}
-.ktp-btn-gray {
-  display: block;
-  width: 100%;
-  background-color: #4b5563;
-  color: #ffffff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  text-decoration: none;
-  text-align: center;
-}
-.ktp-btn-gray:hover {
-  background-color: #374151;
-}
-.ktp-demo-section {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
-.ktp-demo-section h2 {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-.ktp-demo-link {
-  color: #2563eb;
-  text-decoration: underline;
-}
-.ktp-demo-link:hover {
-  color: #1e40af;
-}
-.ktp-text-success {
-  color: #16a34a;
-  margin-bottom: 1rem;
-}
-.ktp-text-lg {
-  font-size: 1.125rem;
-}
-.ktp-loading-center {
+
+.demo-skin-toggle {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 100;
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  gap: 0.375rem;
+  font: 0.8125rem system-ui, sans-serif;
+  color: #6b7280;
 }
