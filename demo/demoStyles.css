@@ -5,7 +5,7 @@
  */
 
 /* A whole alternate look from tokens alone; toggled from the corner of every page. */
-.demo-skin .ktp-page {
+:root.demo-skin {
   --ktp-bg: #1c1917;
   --ktp-surface: #292524;
   --ktp-text: #fafaf9;

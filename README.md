@@ -103,11 +103,11 @@ next call), `AuthBackendError`, `AUTH_URLS`, `devLoginUrl`, and the Firebase hel
 ## Styling
 
 The screens are plain markup with stable `ktp-*` class names, and every color and shape in the
-stylesheet comes from a `--ktp-*` custom property declared on `.ktp-page`. To skin them, redefine
-the tokens; the app's own theme variables work as values, so the screens follow its color scheme:
+stylesheet comes from a `--ktp-*` custom property declared on `:root`. To skin them, redefine the
+tokens there; the app's own theme variables work as values, so the screens follow its color scheme:
 
 ```css
-.ktp-page {
+:root {
   --ktp-bg: var(--mantine-color-body);
   --ktp-surface: var(--app-surface);
   --ktp-text: var(--mantine-color-text);

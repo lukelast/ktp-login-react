@@ -3,11 +3,12 @@
  *
  * Everything lives in the `ktp` cascade layer, so any unlayered rule in the app wins over these
  * whatever the import order or selector specificity. The look is driven entirely by the `--ktp-*`
- * tokens on `.ktp-page`; an app skins the screens by redefining those tokens and needs to touch
- * the classes below only for shapes the tokens cannot express.
+ * tokens, declared on `:root` so they also reach screens with no `.ktp-page` (the loading
+ * overlay); an app skins the screens by redefining those tokens on `:root` and needs to touch the
+ * classes below only for shapes the tokens cannot express.
  */
 @layer ktp {
-  .ktp-page {
+  :root {
     /* Colors */
     --ktp-bg: #f3f4f6;
     --ktp-surface: #ffffff;
