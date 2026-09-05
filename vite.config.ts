@@ -20,7 +20,7 @@ export default defineConfig(({ command }) => ({
           sourcemap: true,
           cssCodeSplit: false,
           lib: {
-            entry: path.resolve(__dirname, "src/index.ts"),
+            entry: path.resolve(import.meta.dirname, "src/index.ts"),
             name: "KtpLoginReact",
             formats: ["es"],
             fileName: () => "index.js",

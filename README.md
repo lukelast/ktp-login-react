@@ -12,6 +12,9 @@ browsers without your Firebase state. ESM with TypeScript declarations.
 npm install ktp-login-react react react-dom firebase react-router-dom
 ```
 
+Requires React and React DOM 19.2.8+, Firebase 12.18.0+, and React Router DOM 7.18.3+
+within their current major versions.
+
 ## Quick start
 
 Configure once before rendering. This is synchronous and network-free: it only sets frontend
@@ -164,6 +167,10 @@ navigate there directly.
 `npm run dev` serves the demo app on <http://localhost:5173>, proxying `/auth` to a ktp-gcp-auth
 backend on `http://localhost:8080`. `npm run lint`, `npm test`, and `npm run build` are what CI
 runs.
+
+CI uses the latest Node 26 release and npm release, with GitHub Actions tracking their major-version tags. TypeScript remains on 6.0.3 because the latest
+typescript-eslint (8.69.0) requires TypeScript below 6.1; upgrading to TypeScript 7
+requires compatible lint tooling first.
 
 To try a build in another project: `npm run build && npm pack`, then install the tarball there.
 Reinstalling a tarball of the same version is cached by most package managers; bump the version or
