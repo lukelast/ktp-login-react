@@ -1,5 +1,7 @@
 # ktp-login-react
 
+[![npm version](https://img.shields.io/npm/v/ktp-login-react)](https://www.npmjs.com/package/ktp-login-react)
+
 React login screens and session handling for apps on the
 [ktp-gcp-auth](https://github.com/lukelast/ktor-plus) backend: Firebase sign-in (Google, GitHub,
 Microsoft, Facebook, email/password, email link, anonymous), a cookie-first session so a signed-in
@@ -143,7 +145,7 @@ configurable on either side.
 
 | Endpoint              | Used for                                                                      |
 |-----------------------|-------------------------------------------------------------------------------|
-| `GET /auth/session`   | Page load: the signed-in user from the session cookie alone, or 401           |
+| `GET /auth/session`   | Page load: the signed-in user identified by the session cookie, or 401       |
 | `GET /auth/config`    | Login page and Firebase init: client keys, enabled providers, `devLogin` flag |
 | `POST /auth/login`    | After a Firebase sign-in: exchanges the ID token for the session cookie       |
 | `POST /auth/logout`   | Clears the session cookie                                                     |
@@ -154,6 +156,10 @@ and Firebase is never loaded. Only on a 401 does the SDK load (a dynamic import,
 it out): a persisted Firebase user is exchanged for a new cookie via `POST /auth/login`, otherwise
 the login page shows. Any other failure of `/auth/session` or `/auth/config` is `syncError`, not
 "signed out".
+
+The backend periodically rechecks account eligibility and reloads roles on session restoration
+and protected API requests. It updates the cookie on success, clears it on an access denial,
+and returns a retryable 503 for service failures. These checks do not load Firebase in the browser.
 
 **Local-dev login.** When `/auth/config` reports `devLogin: true` (ktp-gcp-auth only does so on a
 local-dev environment), the login page shows a "Local development" form that navigates to

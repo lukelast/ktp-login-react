@@ -34,8 +34,8 @@ const readUser = async (response: Response, what: string): Promise<User> => {
 
 export const AuthService = {
   /**
-   * The signed-in user from the session cookie alone, or null when there is no session. This is
-   * the page-load hot path: the server answers from the cookie without Firebase or storage.
+   * The signed-in user identified by the cookie, or null when there is no valid session. The
+   * server periodically rechecks the account and roles; the browser SDK stays unloaded here.
    */
   session: async (): Promise<User | null> => {
     const response = await fetch(AUTH_URLS.session, {
