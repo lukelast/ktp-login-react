@@ -127,14 +127,17 @@ tokens there; the app's own theme variables work as values, so the screens follo
 | `--ktp-accent`, `--ktp-accent-hover`, `--ktp-on-accent`                        | blue primary, white text      |
 | `--ktp-error-bg`, `--ktp-error-text`, `--ktp-success-bg`, `--ktp-success-text` | red and green notices         |
 | `--ktp-skeleton`, `--ktp-overlay`                                              | placeholder and overlay fills |
-| `--ktp-font`                                                                   | `inherit`                     |
+| `--ktp-font`                                                                   | System sans-serif stack       |
 | `--ktp-radius`, `--ktp-card-radius`, `--ktp-border-width`                      | `0.375rem`, `0.5rem`, `1px`   |
 | `--ktp-card-border`, `--ktp-card-shadow`, `--ktp-control-shadow`               | soft drop shadows             |
 | `--ktp-focus-ring`                                                             | `2px solid var(--ktp-accent)` |
 | `--ktp-title-weight`, `--ktp-label-weight`, `--ktp-control-weight`             | `700`, `500`, `500`           |
 
-Everything ships inside the `ktp` cascade layer, so any unlayered app rule wins regardless of
-import order or specificity; for shapes the tokens cannot express, style the classes directly
+Only the default tokens ship inside the `ktp` cascade layer, so unlayered app tokens win regardless
+of import order. Component rules are unlayered so framework resets (including Tailwind Preflight)
+cannot erase padding, borders, or typography. The default screens include a system font and scoped
+box sizing; no app overrides are required. For shapes the tokens cannot express, import your
+stylesheet after the library and style the classes directly
 (`.ktp-title`, `.ktp-btn-primary`, `.ktp-input`, ...). Form controls inherit the page font and
 focus rings are outlines on `:focus-visible`, so a theme's own shadows and fonts carry through.
 
