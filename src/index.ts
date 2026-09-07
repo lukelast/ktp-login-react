@@ -35,6 +35,9 @@ export { PasswordSignInPage } from "./lib/components/PasswordSignInPage";
 export { EmailVerificationPage } from "./lib/components/EmailVerificationPage";
 export { AnonymousLoginPage } from "./lib/components/AnonymousLoginPage";
 
+// Deploy recovery
+export { installPreloadErrorReload } from "./lib/preloadError";
+
 // Router
 export { getAuthRoutes } from "./lib/routes";
 export { AuthRoutes } from "./lib/components/AuthRoutes";

@@ -58,6 +58,19 @@ function Dashboard() {
 `ProtectedRoute` also takes children instead of acting as a layout route. `getAuthRoutes()` returns
 the same pages as `RouteObject`s for data routers.
 
+Also call `installPreloadErrorReload()` once at startup. A deploy replaces every content-hashed
+chunk, so a tab still on the previous build gets a 404 the next time it lazily imports one (a lazy
+route, or the Firebase SDK this library loads on sign-in). Vite reports that as a `vite:preloadError`
+event; the listener reloads the page once, guarded by a sessionStorage marker so a broken server
+does not loop.
+
+```ts
+import { initializeAuthLibrary, installPreloadErrorReload } from "ktp-login-react";
+
+initializeAuthLibrary({ auth: { routes: { afterLogin: "/dashboard" } } });
+installPreloadErrorReload();
+```
+
 ## Configuration
 
 ```typescript
